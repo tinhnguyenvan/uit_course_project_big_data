@@ -34,8 +34,8 @@ Hệ thống thu thập và phân tích dữ liệu sản phẩm và bình luậ
                  ▼
 ┌─────────────────────────────────────────────┐
 │         Kafka Cluster (2 Topics)            │
-│  - shopee-products                          │
-│  - shopee-reviews                           │
+│  - uit-products                          │
+│  - uit-reviews                           │
 └────────────────┬────────────────────────────┘
                  │
        ┌─────────┴──────────┐
@@ -87,13 +87,13 @@ Hệ thống thu thập và phân tích dữ liệu sản phẩm và bình luậ
 
 | Topic | Mô tả | Schema |
 |-------|-------|--------|
-| `shopee-products` | Thông tin sản phẩm từ Shopee | product_id, name, price, original_price, rating, sold_count, shop_id, category, images, url, crawled_at |
-| `shopee-reviews` | Bình luận sản phẩm | review_id, product_id, user_name, rating, comment, images, helpful_count, created_at, crawled_at |
+| `uit-products` | Thông tin sản phẩm từ uit | product_id, name, price, original_price, rating, sold_count, shop_id, category, images, url, crawled_at |
+| `uit-reviews` | Bình luận sản phẩm | review_id, product_id, user_name, rating, comment, images, helpful_count, created_at, crawled_at |
 
 ### 2. PostgreSQL Schema
 
 **Tables chính:**
-- `products`: Thông tin sản phẩm Shopee
+- `products`: Thông tin sản phẩm uit
   - product_id, name, shop_id, category, url, first_seen, last_updated
 - `product_prices`: Lịch sử giá (TimescaleDB hypertable)
   - product_id, price, original_price, discount_percent, timestamp
@@ -288,8 +288,8 @@ project/
 │   └── metabase/
 ├── src/
 │   ├── crawlers/
-│   │   ├── shopee_product_crawler.py
-│   │   ├── shopee_review_crawler.py
+│   │   ├── uit_product_crawler.py
+│   │   ├── uit_review_crawler.py
 │   │   ├── spiders/
 │   │   │   ├── product_spider.py
 │   │   │   └── review_spider.py
