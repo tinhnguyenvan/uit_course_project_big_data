@@ -1,14 +1,14 @@
-# Real-time E-commerce Analytics Platform
+# Hệ thống thu thập, xử lý và phân tích bình luận sách trên môi trường trực tuyến
 
 > Đồ án môn Công nghệ Dữ liệu Lớn - Đại học Công nghệ Thông tin
 
 ## 📋 Tổng quan
 
-Hệ thống thu thập và phân tích dữ liệu sản phẩm và bình luận từ Shopee theo thời gian thực. Sử dụng web crawler để thu thập dữ liệu, Kafka để streaming, PostgreSQL để lưu trữ và Metabase để visualization. Project bao gồm data pipeline hoàn chỉnh: Crawl → Stream → Store → Analyze → Visualize.
+Hệ thống thu thập và phân tích dữ liệu sản phẩm và bình luận từ Tiki theo thời gian thực. Sử dụng web crawler để thu thập dữ liệu, Kafka để streaming, PostgreSQL để lưu trữ và Metabase để visualization. Project bao gồm data pipeline hoàn chỉnh: Crawl → Stream → Store → Analyze → Visualize.
 
 ## 🎯 Mục tiêu
 
-- **Thu thập dữ liệu từ Shopee**: Crawl thông tin sản phẩm (tên, giá, rating, số lượng bán) và bình luận khách hàng
+- **Thu thập dữ liệu từ Tiki**: Crawl thông tin sản phẩm (tên, giá, rating, số lượng bán) và bình luận khách hàng
 - **Xây dựng streaming pipeline**: Sử dụng Kafka để stream dữ liệu crawl được theo thời gian thực
 - **Lưu trữ và xử lý**: PostgreSQL + TimescaleDB cho dữ liệu time-series
 - **Phân tích sentiment**: Phân tích cảm xúc từ bình luận khách hàng (tích cực/tiêu cực/trung tính)
@@ -19,7 +19,7 @@ Hệ thống thu thập và phân tích dữ liệu sản phẩm và bình luậ
 
 ```
 ┌─────────────────────────────────────────────┐
-│          Shopee Website                     │
+│          Tiki Website                     │
 │  (Products + Reviews)                       │
 └────────────────┬────────────────────────────┘
                  │
@@ -115,7 +115,7 @@ Hệ thống thu thập và phân tích dữ liệu sản phẩm và bình luậ
 
 | Dịch vụ | Mô tả | Công nghệ |
 |---------|-------|------|
-| Product Crawler | Crawl thông tin sản phẩm từ Shopee | Scrapy/Selenium, Requests |
+| Product Crawler | Crawl thông tin sản phẩm từ Tiki | Scrapy/Selenium, Requests |
 | Review Crawler | Crawl bình luận sản phẩm | Scrapy/Selenium |
 | Kafka Producer | Đẩy dữ liệu crawl vào Kafka | confluent-kafka |
 | Product Consumer | Nhận và lưu dữ liệu sản phẩm | confluent-kafka, asyncio |
@@ -173,7 +173,7 @@ Hệ thống thu thập và phân tích dữ liệu sản phẩm và bình luậ
 ## 🎁 Features nổi bật
 
 ### Core Features:
-✅ **Web Crawling**: Thu thập dữ liệu sản phẩm và bình luận từ Shopee  
+✅ **Web Crawling**: Thu thập dữ liệu sản phẩm và bình luận từ Tiki  
 ✅ **Real-time Streaming**: Kafka streaming pipeline cho dữ liệu crawl  
 ✅ **Time-series Tracking**: Theo dõi lịch sử giá với TimescaleDB  
 ✅ **Sentiment Analysis**: Phân tích cảm xúc từ bình luận (tiếng Việt)  
@@ -200,12 +200,12 @@ Hệ thống thu thập và phân tích dữ liệu sản phẩm và bình luậ
 - [ ] Thiết lập Metabase và kết nối PostgreSQL
 - [ ] Cấu trúc Git repository
 - [ ] Requirements.txt (scrapy, selenium, kafka, psycopg2, etc.)
-- [ ] Nghiên cứu Shopee API/structure
+- [ ] Nghiên cứu Tiki API/structure
 
 ### Giai đoạn 2: Web Crawling (Tuần 3-4)
 - [ ] Thiết kế database schema (products, reviews, prices, sentiment)
 - [ ] Tạo tables, indexes, TimescaleDB hypertables
-- [ ] Phát triển Shopee Product Crawler
+- [ ] Phát triển Tiki Product Crawler
   - [ ] Xác định URL patterns
   - [ ] Parse thông tin sản phẩm (tên, giá, rating, sold)
   - [ ] Xử lý pagination
