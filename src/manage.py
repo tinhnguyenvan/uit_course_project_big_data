@@ -145,6 +145,43 @@ def crawl_reviews(product_ids, max_pages):
 
 
 @cli.command()
+@click.option('--category-id', default=870, help='Tiki category ID')
+@click.option('--max-pages', default=None, help='Maximum pages to crawl (unlimited if not set)')
+@click.option('--resume/--no-resume', default=True, help='Resume from last crawled page')
+def crawl_listing(category_id, max_pages, resume):
+    """Crawl Tiki listing API (with resume capability)"""
+    click.echo(f"🕷️  Starting listing crawler...")
+    click.echo(f"   Category: {category_id}")
+    click.echo(f"   Max pages: {max_pages if max_pages else 'unlimited'}")
+    click.echo(f"   Resume: {resume}")
+    
+    from scrapy.crawler import CrawlerProcess
+    from scrapy.utils.project import get_project_settings
+    from app.crawlers.spiders.tiki_listing import TikiListingSpider
+    
+    # Get Scrapy settings
+    settings = get_project_settings()
+    settings.setmodule('app.crawlers.settings')
+    
+    process = CrawlerProcess(settings)
+    
+    kwargs = {
+        'category_id': category_id,
+        'resume': resume
+    }
+    if max_pages:
+        kwargs['max_pages'] = max_pages
+    
+    process.crawl(TikiListingSpider, **kwargs)
+    
+    try:
+        process.start()
+        click.secho("✓ Crawler finished", fg='green')
+    except Exception as e:
+        click.secho(f"✗ Crawler failed: {e}", fg='red')
+
+
+@cli.command()
 @click.option('--consumer', type=click.Choice(['products', 'reviews', 'all']), default='all')
 def start_consumers(consumer):
     """Start Kafka consumers"""

@@ -99,7 +99,7 @@ services:
     image: timescale/timescaledb:latest-pg15
     container_name: uit-bd-postgres
     ports:
-      - "5432:5432"
+      - "54325:5432"
     environment:
       POSTGRES_DB: uit_analytics
       POSTGRES_USER: uit_user

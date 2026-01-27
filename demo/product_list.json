@@ -1,0 +1,379 @@
+{
+    "block": {
+        "code": "tiki_listing",
+        "title": "Tiki Listing",
+        "icon": ""
+    },
+    "data": [
+        {
+            "id": 278997895,
+            "sku": "4528136583493",
+            "name": "Sách Cờ Đỏ Cờ Xanh",
+            "url_key": "sach-co-do-co-xanh-p278997895",
+            "url_path": "sach-co-do-co-xanh-p278997895.html?spid=278997897",
+            "type": "",
+            "author_name": "",
+            "book_cover": null,
+            "brand_name": "",
+            "short_description": "",
+            "price": 172500,
+            "list_price": 0,
+            "badges": [],
+            "badges_new": [
+                {
+                    "code": "tikinow",
+                    "icon": "https://salt.tikicdn.com/ts/tka/a8/31/b6/802e2c99dcce64c67aa2648edb15dd25.png",
+                    "icon_height": 16,
+                    "icon_width": 32,
+                    "placement": "delivery_info",
+                    "text": "Giao siêu tốc 2h",
+                    "type": "delivery_info_badge"
+                },
+                {
+                    "code": "authentic_brand",
+                    "icon": "https://salt.tikicdn.com/ts/tka/69/cf/22/1be823299ae34c7ddcd922e73abd4909.png",
+                    "icon_height": 20,
+                    "icon_width": 89,
+                    "placement": "under_product_image",
+                    "type": "icon_badge"
+                },
+                {
+                    "code": "brand_name",
+                    "placement": "above_product_name",
+                    "text": "ALI FANWICK",
+                    "text_color": "#808089",
+                    "type": "text_above_product_name"
+                }
+            ],
+            "discount": 57500,
+            "discount_rate": 25,
+            "rating_average": 0,
+            "review_count": 0,
+            "order_count": 0,
+            "favourite_count": 0,
+            "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/4f/10/f1/2b2c6cc95b393da40d19fc02cac05ebf.jpg",
+            "thumbnail_width": 280,
+            "thumbnail_height": 280,
+            "freegift_items": [],
+            "has_ebook": false,
+            "inventory_status": "",
+            "is_visible": false,
+            "productset_id": 5445,
+            "productset_group_name": "",
+            "seller": null,
+            "is_flower": false,
+            "is_gift_card": false,
+            "inventory": null,
+            "url_attendant_input_form": "",
+            "option_color": [],
+            "stock_item": null,
+            "salable_type": "",
+            "seller_product_id": 278997897,
+            "installment_info": null,
+            "url_review": "",
+            "bundle_deal": false,
+            "quantity_sold": {
+                "text": "Đã bán 18",
+                "value": 18
+            },
+            "tiki_live": null,
+            "original_price": 230000,
+            "shippable": true,
+            "impression_info": [
+                {
+                    "impression_id": "thanos-ZFAVxxUByu7idluT-Mu2iv4BP",
+                    "metadata": {
+                        "astra_reward": 0,
+                        "category": 870,
+                        "delivery_zone": "VN039006001",
+                        "discount_rate": 25,
+                        "flags": {},
+                        "is_ad": 0,
+                        "is_astra_plus": 0,
+                        "is_official_store": 0,
+                        "is_tikinow": 1,
+                        "is_tikipro": 0,
+                        "is_trusted_store": 0,
+                        "mpid": 278997895,
+                        "params": {
+                            "_v": "filter_revamp",
+                            "category": "870",
+                            "limit": "2",
+                            "page": "1"
+                        },
+                        "position": 1,
+                        "price": 172500,
+                        "quantity_sold": 18,
+                        "rating": 0,
+                        "request_id": "ZFAVxxUByu7idluT",
+                        "spid": 278997897,
+                        "tiki_verified": 0
+                    },
+                    "checksum": ""
+                }
+            ],
+            "advertisement": null,
+            "availability": 1,
+            "primary_category_path": "1/2/8322/316/870/67945/67946",
+            "product_reco_score": 0,
+            "seller_id": 1,
+            "visible_impression_info": {
+                "amplitude": {
+                    "all_time_quantity_sold": 18,
+                    "category_l1_name": "Nhà Sách Tiki",
+                    "category_l2_name": "Sách tiếng Việt",
+                    "category_l3_name": "Sách kỹ năng sống",
+                    "category_l4_name": "Sách tâm lý học",
+                    "deboosted_high_price_diff_position": 0,
+                    "earliest_delivery_estimate": 0,
+                    "is_authentic": 1,
+                    "is_best_offer_available": false,
+                    "is_flash_deal": false,
+                    "is_freeship_xtra": false,
+                    "is_gift_available": false,
+                    "is_hero": false,
+                    "is_high_price_penalty": false,
+                    "is_imported": false,
+                    "is_top_brand": false,
+                    "joined_strategy_rerank": false,
+                    "layout": "grid_view",
+                    "master_product_sku": "4914097453305",
+                    "number_of_reviews": 0,
+                    "order_route": "same_province",
+                    "partner_rewards_amount": 0,
+                    "price": 172500,
+                    "primary_category_name": "Sách tâm lý học - khác",
+                    "product_rating": 0,
+                    "search_rank": 0,
+                    "seller_id": 1,
+                    "seller_product_id": 278997897,
+                    "seller_product_sku": "4528136583493",
+                    "seller_type": "OFFICIAL_STORE",
+                    "standard_delivery_estimate": 0,
+                    "tiki_verified": 0,
+                    "tikinow_delivery_estimate": 0.21,
+                    "tikipro_delivery_estimate": 0,
+                    "variant": false
+                }
+            },
+            "badges_v3": [
+                {
+                    "code": "product_image_badge",
+                    "image": "https://salt.tikicdn.com/ts/upload/c2/bc/6d/ff18cc8968e2bbb43f7ac58efbfafdff.png",
+                    "placement": "badge_overlay_product_image",
+                    "type": "image_badge"
+                }
+            ]
+        },
+        {
+            "id": 278838097,
+            "sku": "2248630575101",
+            "name": "Sách Tính Bản Ác (M. Scott Peck) - Tuệ Tri",
+            "url_key": "sach-tinh-ban-ac-p278838097",
+            "url_path": "sach-tinh-ban-ac-p278838097.html?spid=278838098",
+            "type": "",
+            "author_name": "",
+            "book_cover": null,
+            "brand_name": "",
+            "short_description": "",
+            "price": 138750,
+            "list_price": 0,
+            "badges": [],
+            "badges_new": [
+                {
+                    "code": "tikinow",
+                    "icon": "https://salt.tikicdn.com/ts/tka/a8/31/b6/802e2c99dcce64c67aa2648edb15dd25.png",
+                    "icon_height": 16,
+                    "icon_width": 32,
+                    "placement": "delivery_info",
+                    "text": "Giao siêu tốc 2h",
+                    "type": "delivery_info_badge"
+                },
+                {
+                    "code": "authentic_brand",
+                    "icon": "https://salt.tikicdn.com/ts/tka/69/cf/22/1be823299ae34c7ddcd922e73abd4909.png",
+                    "icon_height": 20,
+                    "icon_width": 89,
+                    "placement": "under_product_image",
+                    "type": "icon_badge"
+                },
+                {
+                    "code": "brand_name",
+                    "placement": "above_product_name",
+                    "text": "M. SCOTT PECK",
+                    "text_color": "#808089",
+                    "type": "text_above_product_name"
+                }
+            ],
+            "discount": 46250,
+            "discount_rate": 25,
+            "rating_average": 4.6,
+            "review_count": 9,
+            "order_count": 0,
+            "favourite_count": 0,
+            "thumbnail_url": "https://salt.tikicdn.com/cache/280x280/ts/product/52/f5/ce/96f411869b083789ff63c10b7e4c657e.jpg",
+            "thumbnail_width": 280,
+            "thumbnail_height": 280,
+            "freegift_items": [],
+            "has_ebook": false,
+            "inventory_status": "",
+            "is_visible": false,
+            "productset_id": 243,
+            "productset_group_name": "",
+            "seller": null,
+            "is_flower": false,
+            "is_gift_card": false,
+            "inventory": null,
+            "url_attendant_input_form": "",
+            "option_color": [],
+            "stock_item": null,
+            "salable_type": "",
+            "seller_product_id": 278838098,
+            "installment_info": null,
+            "url_review": "",
+            "bundle_deal": false,
+            "quantity_sold": {
+                "text": "Đã bán 266",
+                "value": 266
+            },
+            "tiki_live": null,
+            "original_price": 185000,
+            "shippable": true,
+            "impression_info": [
+                {
+                    "impression_id": "thanos-ZFAVxxUByu7idluT-uL0ye6Pq",
+                    "metadata": {
+                        "astra_reward": 0,
+                        "category": 870,
+                        "delivery_zone": "VN039006001",
+                        "discount_rate": 25,
+                        "flags": {},
+                        "is_ad": 0,
+                        "is_astra_plus": 0,
+                        "is_official_store": 0,
+                        "is_tikinow": 1,
+                        "is_tikipro": 0,
+                        "is_trusted_store": 0,
+                        "mpid": 278838097,
+                        "params": {
+                            "_v": "filter_revamp",
+                            "category": "870",
+                            "limit": "2",
+                            "page": "1"
+                        },
+                        "position": 2,
+                        "price": 138750,
+                        "quantity_sold": 266,
+                        "rating": 4.6,
+                        "request_id": "ZFAVxxUByu7idluT",
+                        "spid": 278838098,
+                        "tiki_verified": 0
+                    },
+                    "checksum": ""
+                }
+            ],
+            "advertisement": null,
+            "availability": 1,
+            "primary_category_path": "1/2/8322/316/870/871",
+            "product_reco_score": 0,
+            "seller_id": 1,
+            "visible_impression_info": {
+                "amplitude": {
+                    "all_time_quantity_sold": 266,
+                    "category_l1_name": "Nhà Sách Tiki",
+                    "category_l2_name": "Sách tiếng Việt",
+                    "category_l3_name": "Sách kỹ năng sống",
+                    "deboosted_high_price_diff_position": 0,
+                    "earliest_delivery_estimate": 0,
+                    "is_authentic": 1,
+                    "is_best_offer_available": false,
+                    "is_flash_deal": false,
+                    "is_freeship_xtra": false,
+                    "is_gift_available": false,
+                    "is_hero": false,
+                    "is_high_price_penalty": false,
+                    "is_imported": false,
+                    "is_top_brand": false,
+                    "joined_strategy_rerank": false,
+                    "master_product_sku": "2662646731788",
+                    "number_of_reviews": 9,
+                    "order_route": "same_province",
+                    "partner_rewards_amount": 0,
+                    "price": 138750,
+                    "primary_category_name": "Sách tư duy - Kỹ năng sống",
+                    "product_rating": 4.6,
+                    "search_rank": 0,
+                    "seller_id": 1,
+                    "seller_product_id": 278838098,
+                    "seller_product_sku": "2248630575101",
+                    "seller_type": "OFFICIAL_STORE",
+                    "standard_delivery_estimate": 0,
+                    "tiki_verified": 0,
+                    "tikinow_delivery_estimate": 0.21,
+                    "tikipro_delivery_estimate": 0,
+                    "variant": false
+                }
+            },
+            "badges_v3": [
+                {
+                    "code": "product_image_badge",
+                    "image": "https://salt.tikicdn.com/ts/upload/c2/bc/6d/ff18cc8968e2bbb43f7ac58efbfafdff.png",
+                    "placement": "badge_overlay_product_image",
+                    "type": "image_badge"
+                }
+            ]
+        }
+    ],
+    "paging": {
+        "current_page": 1,
+        "from": 1,
+        "last_page": 1000,
+        "per_page": 2,
+        "to": 2,
+        "total": 2000
+    },
+    "filters": [],
+    "amplitude": {
+        "number_of_brand_store_ad": "0",
+        "number_of_display_ad": "0",
+        "number_of_sponsored_product_ad": "0",
+        "search_experiment_variant": "",
+        "search_location": "VN039006001",
+        "search_request": "http://tiki.vn/full/v2/products?_v=filter_revamp&category=870&category=870&limit=2&limit=2&page=1&page=1",
+        "selected_sort_option": "",
+        "seller_product_sku": "4528136583493,2248630575101",
+        "user_strategy": "filter_revamp"
+    },
+    "sort_options": [
+        {
+            "display_value": "Phổ biến",
+            "query_value": "default",
+            "selected": true
+        },
+        {
+            "display_value": "Bán chạy",
+            "query_value": "top_seller",
+            "selected": false
+        },
+        {
+            "display_value": "Hàng mới",
+            "query_value": "newest",
+            "selected": false
+        },
+        {
+            "display_value": "Giá thấp đến cao",
+            "query_value": "price,asc",
+            "selected": false
+        },
+        {
+            "display_value": "Giá cao đến thấp",
+            "query_value": "price,desc",
+            "selected": false
+        }
+    ],
+    "widgets": [],
+    "experiment_variants": {},
+    "model_debug": null,
+    "trace_id": "ZFAVxxUByu7idluT",
+    "items": []
+}

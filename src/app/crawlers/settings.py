@@ -92,15 +92,21 @@ LOG_LEVEL = 'INFO'
 LOG_FORMAT = '%(asctime)s [%(name)s] %(levelname)s: %(message)s'
 LOG_DATEFORMAT = '%Y-%m-%d %H:%M:%S'
 
-# Kafka settings
-KAFKA_BOOTSTRAP_SERVERS = ['localhost:9092']
-KAFKA_TOPIC_PRODUCTS = 'uit-products'
-KAFKA_TOPIC_REVIEWS = 'uit-reviews'
-KAFKA_TOPIC_PRICES = 'uit-prices'
-KAFKA_TOPIC_SHOPS = 'uit-shops'
+# Kafka settings - get from environment or use defaults
+import os
+KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'kafka:29092').split(',')
+KAFKA_TOPIC_PRODUCTS = os.getenv('KAFKA_TOPIC_PRODUCTS', 'uit-products')
+KAFKA_TOPIC_REVIEWS = os.getenv('KAFKA_TOPIC_REVIEWS', 'uit-reviews')
+KAFKA_TOPIC_PRICES = os.getenv('KAFKA_TOPIC_PRICES', 'uit-prices')
+KAFKA_TOPIC_SHOPS = os.getenv('KAFKA_TOPIC_SHOPS', 'uit-shops')
 
-# Database settings (fallback)
-DATABASE_URL = 'postgresql://uit_user:uit_password@localhost:5432/uit_analytics'
+# Database settings (fallback) - get from environment
+POSTGRES_HOST = os.getenv('POSTGRES_HOST', 'postgres')
+POSTGRES_PORT = os.getenv('POSTGRES_PORT', '5432')
+POSTGRES_DB = os.getenv('POSTGRES_DB', 'uit_analytics')
+POSTGRES_USER = os.getenv('POSTGRES_USER', 'uit_user')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD', 'uit_password')
+DATABASE_URL = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
 
 # Custom settings
 TIKI_BASE_URL = 'https://tiki.vn'

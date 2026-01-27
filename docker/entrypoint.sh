@@ -43,6 +43,19 @@ case "$SERVICE" in
     python src/manage.py crawl-products --category-id $CATEGORY_ID --max-pages $MAX_PAGES
     ;;
   
+  "crawl-listing")
+    echo "🕷️ Starting listing crawler (with resume)..."
+    CATEGORY_ID=${CATEGORY_ID:-870}
+    MAX_PAGES=${MAX_PAGES:-}
+    RESUME=${RESUME:-true}
+    cd /app/src
+    if [ -n "$MAX_PAGES" ]; then
+      scrapy crawl tiki_listing -a category_id=$CATEGORY_ID -a max_pages=$MAX_PAGES -a resume=$RESUME
+    else
+      scrapy crawl tiki_listing -a category_id=$CATEGORY_ID -a resume=$RESUME
+    fi
+    ;;
+  
   "crawl-reviews")
     echo "🕷️ Starting review crawler..."
     if [ -z "$PRODUCT_IDS" ]; then
@@ -55,17 +68,17 @@ case "$SERVICE" in
   
   "consumer-products")
     echo "📥 Starting product consumer..."
-    python src/app/consumers/product_consumer.py
+    python src/manage.py start-consumers --consumer products
     ;;
   
   "consumer-reviews")
     echo "📥 Starting review consumer..."
-    python src/app/consumers/review_consumer.py
+    python src/manage.py start-consumers --consumer reviews
     ;;
   
   "consumers-all")
     echo "📥 Starting all consumers..."
-    python src/app/consumers/run_all.py
+    python src/manage.py start-consumers --consumer all
     ;;
   
   "shell")
