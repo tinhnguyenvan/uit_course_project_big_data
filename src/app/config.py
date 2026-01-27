@@ -33,6 +33,8 @@ class Config:
     KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092')
     KAFKA_TOPIC_PRODUCTS = os.getenv('KAFKA_TOPIC_PRODUCTS', 'uit-products')
     KAFKA_TOPIC_PRODUCT_DETAIL = os.getenv('KAFKA_TOPIC_PRODUCT_DETAIL', 'uit-product-detail')
+    KAFKA_TOPIC_REVIEW_FETCH = os.getenv('KAFKA_TOPIC_REVIEW_FETCH', 'uit-review-fetch')
+    KAFKA_TOPIC_REVIEW_DETAIL = os.getenv('KAFKA_TOPIC_REVIEW_DETAIL', 'uit-review-detail')
     KAFKA_TOPIC_REVIEWS = os.getenv('KAFKA_TOPIC_REVIEWS', 'uit-reviews')
     KAFKA_TOPIC_PRICES = os.getenv('KAFKA_TOPIC_PRICES', 'uit-prices')
     KAFKA_TOPIC_SHOPS = os.getenv('KAFKA_TOPIC_SHOPS', 'uit-shops')

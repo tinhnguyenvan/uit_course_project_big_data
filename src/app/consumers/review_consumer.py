@@ -2,6 +2,7 @@
 Review consumer - processes reviews from Kafka and saves to PostgreSQL
 """
 import logging
+import json
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -13,22 +14,22 @@ logger = logging.getLogger(__name__)
 
 
 class ReviewConsumer(BaseConsumer):
-    """Consumer for review messages"""
+    """Consumer for review detail messages"""
     
     def __init__(self):
         super().__init__(
-            topics=[config.KAFKA_TOPIC_REVIEWS],
-            group_id='review-consumer-group',
+            topics=[config.KAFKA_TOPIC_REVIEW_DETAIL],
+            group_id='review-detail-consumer-group',
             bootstrap_servers=config.KAFKA_BOOTSTRAP_SERVERS
         )
         self.db = None
     
     def process_review(self, data: dict) -> bool:
         """
-        Process review message and save to database
+        Process review detail message and save to database
         
         Args:
-            data: Review data from Kafka
+            data: Review detail data from Kafka (from Tiki review API)
             
         Returns:
             True if successful, False otherwise
@@ -36,33 +37,64 @@ class ReviewConsumer(BaseConsumer):
         self.db = SessionLocal()
         
         try:
-            # Verify product exists
-            product = self.db.query(Product).filter_by(
-                product_id=data['product_id']
-            ).first()
+            product_id = data.get('product_id')
+            review_id = data.get('id')
             
-            if not product:
-                logger.warning(f"Product {data['product_id']} not found, skipping review")
+            if not product_id or not review_id:
+                logger.error(f"Missing product_id or review id in message")
                 return False
             
-            # Parse created_at timestamp
+            # Verify product exists
+            product = self.db.query(Product).filter_by(product_id=product_id).first()
+            
+            if not product:
+                logger.warning(f"Product {product_id} not found, skipping review {review_id}")
+                return False
+            
+            # Check if review already exists
+            existing_review = self.db.query(Review).filter_by(
+                review_id=review_id
+            ).first()
+            
+            if existing_review:
+                logger.debug(f"Review {review_id} already exists, skipping")
+                return True
+            
+            # Parse created_at timestamp (unix timestamp from API)
             created_at = data.get('created_at')
-            if isinstance(created_at, str):
+            if isinstance(created_at, (int, float)):
+                created_at = datetime.fromtimestamp(created_at)
+            elif isinstance(created_at, str):
                 try:
                     created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
                 except:
                     created_at = datetime.utcnow()
-            elif not created_at:
+            else:
                 created_at = datetime.utcnow()
+            
+            # Extract user info
+            created_by = data.get('created_by', {})
+            user_name = created_by.get('full_name') or created_by.get('name', 'Anonymous')
+            
+            # Extract comment (content)
+            comment = data.get('content', '') or data.get('title', '')
+            
+            # Count images
+            images = data.get('images', [])
+            has_images = len(images) > 0
+            
+            # Extract helpful count (thank_count in API)
+            helpful_count = data.get('thank_count', 0)
             
             # Create review
             review = Review(
-                product_id=data['product_id'],
-                user_name=data.get('user_name', 'Anonymous'),
-                rating=data['rating'],
-                comment=data.get('comment', ''),
-                has_images=data.get('has_images', False),
-                helpful_count=data.get('helpful_count', 0),
+                review_id=review_id,
+                product_id=product_id,
+                user_name=user_name,
+                rating=data.get('rating', 0),
+                comment=comment,
+                has_images=has_images,
+                helpful_count=helpful_count,
                 created_at=created_at,
                 crawled_at=datetime.utcnow()
             )
@@ -71,8 +103,8 @@ class ReviewConsumer(BaseConsumer):
             self.db.commit()
             
             logger.info(
-                f"Successfully saved review for product {data['product_id']}, "
-                f"rating: {data['rating']}"
+                f"Successfully saved review {review_id} for product {product_id}, "
+                f"rating: {data.get('rating')}"
             )
             
             return True

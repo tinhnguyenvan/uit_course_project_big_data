@@ -6,9 +6,10 @@ import requests
 import json
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
+from confluent_kafka import Producer
 
 from .base_consumer import BaseConsumer
-from ..models import SessionLocal, Product
+from ..models import SessionLocal, Product, Shop, Category
 from ..config import config
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,22 @@ class ProductDetailConsumer(BaseConsumer):
             'Accept': 'application/json',
             'Referer': 'https://tiki.vn/'
         })
+        self.review_fetch_producer = None
+        self._init_review_fetch_producer()
+    
+    def _init_review_fetch_producer(self):
+        """Initialize Kafka producer for review fetch topic"""
+        try:
+            producer_config = {
+                'bootstrap.servers': config.KAFKA_BOOTSTRAP_SERVERS,
+                'acks': 'all',
+                'retries': 3
+            }
+            self.review_fetch_producer = Producer(producer_config)
+            logger.info("Review fetch producer initialized")
+        except Exception as e:
+            logger.error(f"Failed to initialize review fetch producer: {e}")
+            self.review_fetch_producer = None
     
     def process_detail(self, data: dict) -> bool:
         """
@@ -57,7 +74,14 @@ class ProductDetailConsumer(BaseConsumer):
                 return False
             
             # Update database with detail information
-            return self._update_product_detail(detail_data)
+            success = self._update_product_detail(detail_data)
+            
+            # If successful, push to review fetch topic
+            if success:
+                seller_id = detail_data.get('current_seller', {}).get('id')
+                self._push_to_review_fetch(product_id, spid, seller_id)
+            
+            return success
             
         except Exception as e:
             logger.error(f"Error processing detail for product {product_id}: {e}")
@@ -157,11 +181,15 @@ class ProductDetailConsumer(BaseConsumer):
             
             # Category from breadcrumbs or categories
             if detail_data.get('categories', {}).get('id'):
-                product.category_id = detail_data['categories']['id']
+                category_id = detail_data['categories']['id']
+                self._ensure_category(category_id)
+                product.category_id = category_id
             
             # Current seller
             if detail_data.get('current_seller', {}).get('id'):
-                product.shop_id = detail_data['current_seller']['id']
+                shop_id = detail_data['current_seller']['id']
+                self._upsert_shop(shop_id, detail_data.get('current_seller', {}))
+                product.shop_id = shop_id
             
             # Additional detail fields
             if detail_data.get('review_count'):
@@ -206,6 +234,45 @@ class ProductDetailConsumer(BaseConsumer):
             if self.db:
                 self.db.close()
     
+    def _ensure_category(self, category_id: int):
+        """Ensure category exists in database"""
+        if not category_id:
+            return
+        
+        category = self.db.query(Category).filter_by(category_id=category_id).first()
+        
+        if not category:
+            # Create placeholder category
+            category = Category(
+                category_id=category_id,
+                category_name=f"Category {category_id}"
+            )
+            self.db.add(category)
+            self.db.flush()  # Flush to make it available in same transaction
+            logger.debug(f"Created placeholder for category {category_id}")
+    
+    def _upsert_shop(self, shop_id: int, shop_data: dict):
+        """Create or update shop"""
+        if not shop_id:
+            return
+        
+        shop = self.db.query(Shop).filter_by(shop_id=shop_id).first()
+        
+        if not shop:
+            # Create shop with available data
+            shop = Shop(
+                shop_id=shop_id,
+                shop_name=shop_data.get('name', f"Shop {shop_id}"),
+                is_official=False
+            )
+            self.db.add(shop)
+            self.db.flush()  # Flush to make it available in same transaction
+            logger.debug(f"Created shop {shop_id}: {shop.shop_name}")
+        elif shop_data.get('name'):
+            # Update shop name if provided
+            shop.shop_name = shop_data['name']
+            logger.debug(f"Updated shop {shop_id}: {shop.shop_name}")
+    
     def _clean_html(self, html_text: str) -> str:
         """
         Remove HTML tags from description
@@ -225,6 +292,43 @@ class ProductDetailConsumer(BaseConsumer):
         clean_text = re.sub(r'\s+', ' ', clean_text)
         return clean_text.strip()
     
+    def _push_to_review_fetch(self, product_id: int, spid: int, seller_id: int = None):
+        """Push product info to review fetch topic"""
+        if not self.review_fetch_producer:
+            logger.warning("Review fetch producer not available, skipping review fetch push")
+            return
+        
+        try:
+            message = {
+                'product_id': product_id,
+                'spid': spid,
+                'seller_id': seller_id or 1  # Default to seller_id 1 if not available
+            }
+            
+            # Serialize message to JSON
+            message_json = json.dumps(message).encode('utf-8')
+            
+            # Send message
+            self.review_fetch_producer.produce(
+                config.KAFKA_TOPIC_REVIEW_FETCH,
+                value=message_json,
+                callback=self._delivery_callback
+            )
+            
+            # Flush to ensure message is sent
+            self.review_fetch_producer.flush()
+            logger.debug(f"Pushed product {product_id} to review fetch topic")
+            
+        except Exception as e:
+            logger.error(f"Failed to push product {product_id} to review fetch topic: {e}")
+    
+    def _delivery_callback(self, err, msg):
+        """Callback for message delivery confirmation"""
+        if err:
+            logger.error(f"Message delivery failed: {err}")
+        else:
+            logger.debug(f"Message delivered to {msg.topic()}")
+    
     def start(self):
         """Start consuming product detail messages"""
         logger.info("Starting product detail consumer...")
@@ -234,6 +338,8 @@ class ProductDetailConsumer(BaseConsumer):
         """Close connections"""
         if self.session:
             self.session.close()
+        if self.review_fetch_producer:
+            self.review_fetch_producer.flush()
         super().close()
 
 

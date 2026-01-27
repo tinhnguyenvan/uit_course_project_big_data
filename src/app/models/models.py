@@ -104,7 +104,7 @@ class Review(Base):
     """Customer reviews"""
     __tablename__ = "reviews"
     
-    review_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    review_id = Column(BigInteger, primary_key=True)  # Use Tiki review ID
     product_id = Column(BigInteger, ForeignKey("products.product_id"), nullable=False)
     user_name = Column(String(255))
     rating = Column(Integer, nullable=False)

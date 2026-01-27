@@ -7,6 +7,7 @@ import sys
 
 from .product_consumer import ProductConsumer
 from .product_detail_consumer import ProductDetailConsumer
+from .review_fetch_consumer import ReviewFetchConsumer
 from .review_consumer import ReviewConsumer
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,16 @@ def start_product_detail_consumer():
         format='%(asctime)s - [PRODUCT-DETAIL] - %(levelname)s - %(message)s'
     )
     consumer = ProductDetailConsumer()
+    consumer.start()
+
+
+def start_review_fetch_consumer():
+    """Start review fetch consumer in separate process"""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - [REVIEW-FETCH] - %(levelname)s - %(message)s'
+    )
+    consumer = ReviewFetchConsumer()
     consumer.start()
 
 
@@ -55,6 +66,7 @@ def main():
     processes = [
         multiprocessing.Process(target=start_product_consumer, name='ProductConsumer'),
         multiprocessing.Process(target=start_product_detail_consumer, name='ProductDetailConsumer'),
+        multiprocessing.Process(target=start_review_fetch_consumer, name='ReviewFetchConsumer'),
         multiprocessing.Process(target=start_review_consumer, name='ReviewConsumer'),
     ]
     
