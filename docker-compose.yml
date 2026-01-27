@@ -171,7 +171,7 @@ services:
       SCRAPY_CONCURRENT_REQUESTS: 16
       SCRAPY_DOWNLOAD_DELAY: 1
       
-      # Service to run (check, init-db, create-topics, crawl-products, crawl-reviews, consumer-products, consumer-reviews, consumers-all, shell)
+      # Service to run
       SERVICE: ${SERVICE:-check}
       
       # Crawler options
@@ -189,8 +189,73 @@ services:
     networks:
       - uit-network
     entrypoint: ["/app/docker/entrypoint.sh"]
-    # Uncomment to keep container running
-    # command: tail -f /dev/null
+
+  # Cron Service - Auto Crawler
+  cron:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uit-bd-cron
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: uit_analytics
+      POSTGRES_USER: uit_user
+      POSTGRES_PASSWORD: uit_password
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_TOPIC_PRODUCTS: uit-products
+      KAFKA_TOPIC_REVIEWS: uit-reviews
+      KAFKA_TOPIC_PRICES: uit-prices
+      KAFKA_TOPIC_SHOPS: uit-shops
+      SERVICE: cron
+      LOG_LEVEL: INFO
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+      - ./data:/app/data
+    networks:
+      - uit-network
+    entrypoint: ["/app/docker/entrypoint.sh"]
+    restart: unless-stopped
+
+  # Consumers Service - Process Kafka Messages
+  consumers:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uit-bd-consumers
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: uit_analytics
+      POSTGRES_USER: uit_user
+      POSTGRES_PASSWORD: uit_password
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_TOPIC_PRODUCTS: uit-products
+      KAFKA_TOPIC_REVIEWS: uit-reviews
+      KAFKA_TOPIC_PRICES: uit-prices
+      KAFKA_TOPIC_SHOPS: uit-shops
+      SERVICE: consumers-all
+      LOG_LEVEL: INFO
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+    networks:
+      - uit-network
+    entrypoint: ["/app/docker/entrypoint.sh"]
+    restart: unless-stopped
 
 volumes:
   zookeeper-data:

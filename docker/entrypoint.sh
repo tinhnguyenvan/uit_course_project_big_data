@@ -81,14 +81,24 @@ case "$SERVICE" in
     python src/manage.py start-consumers --consumer all
     ;;
   
+  "cron")
+    echo "🕐 Starting cron service..."
+    /app/docker/start-cron.sh
+    ;;
+  
   "shell")
     echo "🐚 Starting interactive shell..."
     /bin/bash
     ;;
   
+  "cron")
+    echo "🕐 Starting cron service..."
+    /app/docker/start-cron.sh
+    ;;
+  
   *)
     echo "❌ Unknown service: $SERVICE"
-    echo "Available services: check, init-db, create-topics, crawl-products, crawl-reviews, consumer-products, consumer-reviews, consumers-all, shell"
+    echo "Available services: check, init-db, create-topics, crawl-products, crawl-listing, crawl-reviews, consumer-products, consumer-reviews, consumers-all, cron, shell"
     exit 1
     ;;
 esac

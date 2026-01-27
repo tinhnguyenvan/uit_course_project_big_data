@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     curl \
     netcat-openbsd \
+    cron \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip
@@ -29,9 +30,12 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy docker entrypoint script
+# Copy docker scripts
 COPY docker/entrypoint.sh /app/docker/entrypoint.sh
-RUN chmod +x /app/docker/entrypoint.sh
+COPY docker/start-cron.sh /app/docker/start-cron.sh
+COPY docker/cron-wrapper.sh /app/docker/cron-wrapper.sh
+COPY docker/crontab /app/docker/crontab
+RUN chmod +x /app/docker/entrypoint.sh /app/docker/start-cron.sh /app/docker/cron-wrapper.sh
 
 # Copy application code
 COPY src/ /app/src/
