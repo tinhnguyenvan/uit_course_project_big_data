@@ -2,6 +2,15 @@
 
 > Đồ án môn Công nghệ Dữ liệu Lớn - Đại học Công nghệ Thông tin
 
+
+## 🔑 Thông tin Đăng nhập / Login Credentials
+
+| Service | URL | Username | Password |
+|---------|-----|----------|----------|
+| Kafka | http://localhost:8081/ | admin@gmail.com | Admin@123 |
+| Metabase | http://localhost:3001/ | admin@gmail.com | Admin@123 |
+
+
 ## 📋 Tổng quan
 
 Hệ thống thu thập và phân tích dữ liệu sản phẩm và bình luận từ Tiki theo thời gian thực. Sử dụng web crawler để thu thập dữ liệu, Kafka để streaming, PostgreSQL để lưu trữ và Metabase để visualization. Project bao gồm data pipeline hoàn chỉnh: Crawl → Stream → Store → Analyze → Visualize.
@@ -93,18 +102,13 @@ Hệ thống thu thập và phân tích dữ liệu sản phẩm và bình luậ
 ### 2. PostgreSQL Schema
 
 **Tables chính:**
-- `products`: Thông tin sản phẩm uit
-  - product_id, name, shop_id, category, url, first_seen, last_updated
-- `product_prices`: Lịch sử giá (TimescaleDB hypertable)
-  - product_id, price, original_price, discount_percent, timestamp
-- `reviews`: Bình luận khách hàng
-  - review_id, product_id, user_name, rating, comment, created_at, crawled_at
-- `review_sentiment`: Kết quả phân tích sentiment
-  - review_id, sentiment (positive/negative/neutral), confidence_score, processed_at
-- `shops`: Thông tin shop
-  - shop_id, shop_name, rating, response_rate, follower_count
+- `products`: Thông tin sản phẩm
 - `categories`: Danh mục sản phẩm
-  - category_id, category_name, parent_id
+- `reviews`: Bình luận khách hàng
+- `review_sentiment`: Kết quả phân tích sentiment
+- `shops`: Thông tin shop
+- `orders`: Đơn hàng
+- `order_lines`: Line chi tiểt
 
 **Aggregated Views (cho Metabase):**
 - `product_stats_daily`: Thống kê sản phẩm theo ngày

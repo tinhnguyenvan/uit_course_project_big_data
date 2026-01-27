@@ -1,12 +1,11 @@
-version: '3.8'
-name: uit_big_data
+name: uit-big-data
 
 services:
   # Zookeeper - Required for Kafka
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     hostname: zookeeper
-    container_name: uit-zookeeper
+    container_name: uit-bd-zookeeper
     ports:
       - "2181:2181"
     environment:
@@ -22,7 +21,7 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     hostname: kafka
-    container_name: uit-kafka
+    container_name: uit-bd-kafka
     depends_on:
       - zookeeper
     ports:
@@ -45,30 +44,60 @@ services:
     networks:
       - uit-network
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092" ]
       interval: 10s
       timeout: 10s
       retries: 5
 
-  # Kafka UI (Optional - for monitoring)
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: uit-kafka-ui
+  # Conduktor Console - Enterprise Kafka UI
+  conduktor-console:
+    image: conduktor/conduktor-console:1.41.0
+    container_name: uit-bd-conduktor-console
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
+      conduktor-postgresql:
+        condition: service_healthy
     ports:
-      - "8080:8080"
+      - "8081:8080"
+    volumes:
+      - conduktor_data:/var/conduktor
     environment:
-      KAFKA_CLUSTERS_0_NAME: uit-cluster
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      CDK_DATABASE_URL: "postgresql://conduktor:conduktor_pass@conduktor-postgresql:5432/conduktor-console"
+      CDK_ORGANIZATION_NAME: "UIT Project"
+      CDK_CLUSTERS_0_ID: "uit-kafka-cluster"
+      CDK_CLUSTERS_0_NAME: "UIT Kafka Cluster"
+      CDK_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:29092"
+      CDK_CLUSTERS_0_COLOR: "#6A57C8"
+      CDK_CLUSTERS_0_ICON: "kafka"
     networks:
       - uit-network
+
+  # PostgreSQL for Conduktor metadata
+  conduktor-postgresql:
+    image: postgres:14
+    container_name: uit-bd-conduktor-postgres
+    hostname: conduktor-postgresql
+    volumes:
+      - conduktor_pg_data:/var/lib/postgresql/data
+    environment:
+      PGDATA: "/var/lib/postgresql/data"
+      POSTGRES_DB: "conduktor-console"
+      POSTGRES_USER: "conduktor"
+      POSTGRES_PASSWORD: "conduktor_pass"
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+    networks:
+      - uit-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U conduktor -d conduktor-console"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # PostgreSQL with TimescaleDB
   postgres:
     image: timescale/timescaledb:latest-pg15
-    container_name: uit-postgres
+    container_name: uit-bd-postgres
     ports:
       - "5432:5432"
     environment:
@@ -90,7 +119,7 @@ services:
   # Metabase
   metabase:
     image: metabase/metabase:latest
-    container_name: uit-metabase
+    container_name: uit-bd-metabase
     depends_on:
       - postgres
     ports:
@@ -112,17 +141,67 @@ services:
       timeout: 10s
       retries: 3
 
+  # Python Application - Scrapy Crawlers & Kafka Consumers
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uit-bd-app
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: uit_analytics
+      POSTGRES_USER: uit_user
+      POSTGRES_PASSWORD: uit_password
+      
+      # Kafka
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_TOPIC_PRODUCTS: uit-products
+      KAFKA_TOPIC_REVIEWS: uit-reviews
+      KAFKA_TOPIC_PRICES: uit-prices
+      KAFKA_TOPIC_SHOPS: uit-shops
+      
+      # Scrapy
+      SCRAPY_CONCURRENT_REQUESTS: 16
+      SCRAPY_DOWNLOAD_DELAY: 1
+      
+      # Service to run (check, init-db, create-topics, crawl-products, crawl-reviews, consumer-products, consumer-reviews, consumers-all, shell)
+      SERVICE: ${SERVICE:-check}
+      
+      # Crawler options
+      CATEGORY_ID: ${CATEGORY_ID:-1789}
+      MAX_PAGES: ${MAX_PAGES:-10}
+      PRODUCT_IDS: ${PRODUCT_IDS:-}
+      
+      # Logging
+      LOG_LEVEL: INFO
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+      - ./data:/app/data
+    networks:
+      - uit-network
+    entrypoint: ["/app/docker/entrypoint.sh"]
+    # Uncomment to keep container running
+    # command: tail -f /dev/null
+
 volumes:
   zookeeper-data:
-    driver: local
   zookeeper-logs:
-    driver: local
   kafka-data:
-    driver: local
   postgres-data:
-    driver: local
   metabase-data:
-    driver: local
+  odoo-web-data:
+  pgadmin-data:
+  conduktor_data:
+  conduktor_pg_data:
 
 networks:
   uit-network:
