@@ -5,6 +5,7 @@ from sqlalchemy import (
     Column, Integer, BigInteger, String, Text, Float, 
     Boolean, DateTime, ForeignKey, DECIMAL, CheckConstraint
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
@@ -62,6 +63,14 @@ class Product(Base):
     sold_count = Column(Integer, default=0)
     first_seen = Column(DateTime(timezone=True), server_default=func.now())
     last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    # Detail fields from product detail API
+    review_count = Column(Integer, default=0)
+    discount_rate = Column(Integer, default=0)
+    short_description = Column(Text)
+    authors = Column(JSONB)
+    specifications = Column(JSONB)
+    configurable_options = Column(JSONB)
     
     # Relationships
     shop = relationship("Shop", back_populates="products")

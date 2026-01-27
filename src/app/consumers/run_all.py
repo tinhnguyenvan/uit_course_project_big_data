@@ -6,6 +6,7 @@ import logging
 import sys
 
 from .product_consumer import ProductConsumer
+from .product_detail_consumer import ProductDetailConsumer
 from .review_consumer import ReviewConsumer
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,16 @@ def start_product_consumer():
         format='%(asctime)s - [PRODUCT] - %(levelname)s - %(message)s'
     )
     consumer = ProductConsumer()
+    consumer.start()
+
+
+def start_product_detail_consumer():
+    """Start product detail consumer in separate process"""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - [PRODUCT-DETAIL] - %(levelname)s - %(message)s'
+    )
+    consumer = ProductDetailConsumer()
     consumer.start()
 
 
@@ -43,6 +54,7 @@ def main():
     # Create processes
     processes = [
         multiprocessing.Process(target=start_product_consumer, name='ProductConsumer'),
+        multiprocessing.Process(target=start_product_detail_consumer, name='ProductDetailConsumer'),
         multiprocessing.Process(target=start_review_consumer, name='ReviewConsumer'),
     ]
     

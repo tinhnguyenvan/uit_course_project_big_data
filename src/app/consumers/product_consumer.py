@@ -2,8 +2,10 @@
 Product consumer - processes products from Kafka and saves to PostgreSQL
 """
 import logging
+import json
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
+from confluent_kafka import Producer
 
 from .base_consumer import BaseConsumer
 from ..models import SessionLocal, Product, Shop, ProductPrice, Category
@@ -22,6 +24,22 @@ class ProductConsumer(BaseConsumer):
             bootstrap_servers=config.KAFKA_BOOTSTRAP_SERVERS
         )
         self.db = None
+        self.detail_producer = None
+        self._init_detail_producer()
+    
+    def _init_detail_producer(self):
+        """Initialize Kafka producer for product detail topic"""
+        try:
+            producer_config = {
+                'bootstrap.servers': config.KAFKA_BOOTSTRAP_SERVERS,
+                'acks': 'all',
+                'retries': 3
+            }
+            self.detail_producer = Producer(producer_config)
+            logger.info("Product detail producer initialized")
+        except Exception as e:
+            logger.error(f"Failed to initialize detail producer: {e}")
+            self.detail_producer = None
     
     def process_product(self, data: dict) -> bool:
         """
@@ -94,6 +112,9 @@ class ProductConsumer(BaseConsumer):
             self.db.commit()
             logger.info(f"Successfully saved product {data['product_id']}: {data.get('name', '')[:50]}")
             
+            # Push to product detail topic for detailed crawling
+            self._push_to_detail_topic(data['product_id'], data.get('spid'))
+            
             return True
             
         except SQLAlchemyError as e:
@@ -142,10 +163,52 @@ class ProductConsumer(BaseConsumer):
             self.db.add(category)
             logger.debug(f"Created placeholder for category {category_id}")
     
+    def _push_to_detail_topic(self, product_id: int, spid: int = None):
+        """Push product_id to detail topic for detailed crawling"""
+        if not self.detail_producer:
+            logger.warning("Detail producer not available, skipping detail push")
+            return
+        
+        try:
+            message = {
+                'product_id': product_id,
+                'spid': spid or product_id  # Use product_id as fallback if spid not available
+            }
+            
+            # Serialize message to JSON
+            message_json = json.dumps(message).encode('utf-8')
+            
+            # Send message
+            self.detail_producer.produce(
+                config.KAFKA_TOPIC_PRODUCT_DETAIL,
+                value=message_json,
+                callback=self._delivery_callback
+            )
+            
+            # Flush to ensure message is sent
+            self.detail_producer.flush()
+            logger.debug(f"Pushed product {product_id} to detail topic")
+            
+        except Exception as e:
+            logger.error(f"Failed to push product {product_id} to detail topic: {e}")
+    
+    def _delivery_callback(self, err, msg):
+        """Callback for message delivery confirmation"""
+        if err:
+            logger.error(f"Message delivery failed: {err}")
+        else:
+            logger.debug(f"Message delivered to {msg.topic()}")
+    
     def start(self):
         """Start consuming product messages"""
         logger.info("Starting product consumer...")
         self.consume(self.process_product)
+    
+    def close(self):
+        """Close producer connections"""
+        if self.detail_producer:
+            self.detail_producer.flush()
+        super().close()
 
 
 # Standalone runner

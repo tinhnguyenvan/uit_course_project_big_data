@@ -8,7 +8,7 @@
 | Service | URL | Username | Password |
 |---------|-----|----------|----------|
 | Kafka | http://localhost:8081/ | admin@gmail.com | Admin@123 |
-| Metabase | http://localhost:3001/ | admin@gmail.com | Admin@123 |
+| Metabase | http://localhost:3000/ | admin@gmail.com | Admin@123 |
 
 
 ## 📋 Tổng quan
