@@ -150,6 +150,62 @@ class ReviewSentiment(Base):
         return f"<ReviewSentiment(review_id={self.review_id}, sentiment='{self.sentiment}')>"
 
 
+class Customer(Base):
+    """Customer information from reviews"""
+    __tablename__ = "customers"
+    
+    customer_id = Column(BigInteger, primary_key=True)  # Use Tiki user ID
+    customer_name = Column(String(255), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    orders = relationship("Order", back_populates="customer")
+    
+    def __repr__(self):
+        return f"<Customer(id={self.customer_id}, name='{self.customer_name}')>"
+
+
+class Order(Base):
+    """Orders created from reviews (1 review = 1 order)"""
+    __tablename__ = "orders"
+    
+    order_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    customer_id = Column(BigInteger, ForeignKey("customers.customer_id"), nullable=False)
+    review_id = Column(BigInteger, ForeignKey("reviews.review_id"), unique=True, nullable=False)  # Prevent duplicate orders
+    order_date = Column(DateTime(timezone=True), nullable=False)
+    total_amount = Column(DECIMAL(12, 2))
+    status = Column(String(50), default='completed')
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    customer = relationship("Customer", back_populates="orders")
+    review = relationship("Review")
+    order_lines = relationship("OrderLine", back_populates="order", cascade="all, delete-orphan")
+    
+    def __repr__(self):
+        return f"<Order(id={self.order_id}, customer_id={self.customer_id}, review_id={self.review_id})>"
+
+
+class OrderLine(Base):
+    """Order line items"""
+    __tablename__ = "order_lines"
+    
+    order_line_id = Column(BigInteger, primary_key=True, autoincrement=True)
+    order_id = Column(BigInteger, ForeignKey("orders.order_id"), nullable=False)
+    product_id = Column(BigInteger, ForeignKey("products.product_id"), nullable=False)
+    quantity = Column(Integer, default=1, nullable=False)
+    unit_price = Column(DECIMAL(12, 2))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    order = relationship("Order", back_populates="order_lines")
+    product = relationship("Product")
+    
+    def __repr__(self):
+        return f"<OrderLine(id={self.order_line_id}, order_id={self.order_id}, product_id={self.product_id})>"
+
+
 class CrawlLog(Base):
     """Crawler execution logs for monitoring"""
     __tablename__ = "crawl_logs"

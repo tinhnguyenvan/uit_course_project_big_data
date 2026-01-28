@@ -38,6 +38,7 @@ class Config:
     KAFKA_TOPIC_REVIEWS = os.getenv('KAFKA_TOPIC_REVIEWS', 'uit-reviews')
     KAFKA_TOPIC_PRICES = os.getenv('KAFKA_TOPIC_PRICES', 'uit-prices')
     KAFKA_TOPIC_SHOPS = os.getenv('KAFKA_TOPIC_SHOPS', 'uit-shops')
+    KAFKA_TOPIC_ORDERS = os.getenv('KAFKA_TOPIC_ORDERS', 'uit-orders')
     
     # Scrapy settings
     SCRAPY_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'

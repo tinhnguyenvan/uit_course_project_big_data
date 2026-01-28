@@ -9,6 +9,7 @@ from .product_consumer import ProductConsumer
 from .product_detail_consumer import ProductDetailConsumer
 from .review_fetch_consumer import ReviewFetchConsumer
 from .review_consumer import ReviewConsumer
+from .order_consumer import OrderConsumer
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,16 @@ def start_review_consumer():
     consumer.start()
 
 
+def start_order_consumer():
+    """Start order consumer in separate process"""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - [ORDER] - %(levelname)s - %(message)s'
+    )
+    consumer = OrderConsumer()
+    consumer.start()
+
+
 def main():
     """Run all consumers"""
     logging.basicConfig(
@@ -68,6 +79,7 @@ def main():
         multiprocessing.Process(target=start_product_detail_consumer, name='ProductDetailConsumer'),
         multiprocessing.Process(target=start_review_fetch_consumer, name='ReviewFetchConsumer'),
         multiprocessing.Process(target=start_review_consumer, name='ReviewConsumer'),
+        multiprocessing.Process(target=start_order_consumer, name='OrderConsumer'),
     ]
     
     # Start all processes

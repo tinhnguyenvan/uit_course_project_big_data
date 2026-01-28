@@ -5,6 +5,7 @@ import logging
 import json
 from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
+from confluent_kafka import Producer
 
 from .base_consumer import BaseConsumer
 from ..models import SessionLocal, Review, Product
@@ -23,6 +24,13 @@ class ReviewConsumer(BaseConsumer):
             bootstrap_servers=config.KAFKA_BOOTSTRAP_SERVERS
         )
         self.db = None
+        
+        # Kafka producer for order topic
+        self.order_producer = Producer({
+            'bootstrap.servers': config.KAFKA_BOOTSTRAP_SERVERS,
+            'acks': 'all',
+            'retries': 3
+        })
     
     def process_review(self, data: dict) -> bool:
         """
@@ -106,6 +114,27 @@ class ReviewConsumer(BaseConsumer):
                 f"Successfully saved review {review_id} for product {product_id}, "
                 f"rating: {data.get('rating')}"
             )
+            
+            # Push to order topic for order creation
+            order_message = {
+                'review_id': review_id,
+                'product_id': product_id,
+                'customer_id': created_by.get('id'),  # Tiki user ID
+                'customer_name': user_name,
+                'order_date': created_at.isoformat(),
+                'rating': data.get('rating', 0)
+            }
+            
+            self.order_producer.produce(
+                config.KAFKA_TOPIC_ORDERS,
+                key=str(review_id).encode('utf-8'),
+                value=json.dumps(order_message).encode('utf-8'),
+                callback=lambda err, msg: logger.error(f"Order message delivery failed: {err}") if err 
+                         else logger.debug(f"Order message for review {review_id} delivered")
+            )
+            self.order_producer.flush()
+            
+            logger.info(f"Pushed order message for review {review_id} to topic {config.KAFKA_TOPIC_ORDERS}")
             
             return True
             

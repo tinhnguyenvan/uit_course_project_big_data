@@ -2,7 +2,10 @@
 SQLAlchemy database models
 """
 from .database import Base, engine, SessionLocal, get_db
-from .models import Product, Shop, Category, Review, ReviewSentiment, ProductPrice, CrawlLog
+from .models import (
+    Product, Shop, Category, Review, ReviewSentiment, ProductPrice, CrawlLog,
+    Customer, Order, OrderLine
+)
 
 __all__ = [
     'Base',
@@ -15,5 +18,8 @@ __all__ = [
     'Review',
     'ReviewSentiment',
     'ProductPrice',
-    'CrawlLog'
+    'CrawlLog',
+    'Customer',
+    'Order',
+    'OrderLine'
 ]
