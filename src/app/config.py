@@ -39,6 +39,7 @@ class Config:
     KAFKA_TOPIC_PRICES = os.getenv('KAFKA_TOPIC_PRICES', 'uit-prices')
     KAFKA_TOPIC_SHOPS = os.getenv('KAFKA_TOPIC_SHOPS', 'uit-shops')
     KAFKA_TOPIC_ORDERS = os.getenv('KAFKA_TOPIC_ORDERS', 'uit-orders')
+    KAFKA_TOPIC_SENTIMENT_ANALYSIS = os.getenv('KAFKA_TOPIC_SENTIMENT_ANALYSIS', 'uit-sentiment-analysis')
     
     # Cài đặt Scrapy
     SCRAPY_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
@@ -53,6 +54,12 @@ class Config:
     # Logging
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
     LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    
+    # Cài đặt Sentiment Analysis
+    SENTIMENT_MODEL_NAME = os.getenv('SENTIMENT_MODEL_NAME', 'uitnlp/visobert')  # PhoBERT cho tiếng Việt
+    SENTIMENT_BATCH_SIZE = int(os.getenv('SENTIMENT_BATCH_SIZE', '8'))
+    SENTIMENT_MAX_LENGTH = int(os.getenv('SENTIMENT_MAX_LENGTH', '256'))
+    SENTIMENT_DEVICE = os.getenv('SENTIMENT_DEVICE', 'cpu')  # 'cpu' hoặc 'cuda'
     
     # Môi trường
     ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')

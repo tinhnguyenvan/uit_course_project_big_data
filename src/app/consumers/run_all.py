@@ -10,6 +10,7 @@ from .product_detail_consumer import ProductDetailConsumer
 from .review_fetch_consumer import ReviewFetchConsumer
 from .review_consumer import ReviewConsumer
 from .order_consumer import OrderConsumer
+from .sentiment_consumer import SentimentConsumer
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,16 @@ def start_order_consumer():
     consumer.start()
 
 
+def start_sentiment_consumer():
+    """Khởi động sentiment analysis consumer trong process riêng"""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - [SENTIMENT] - %(levelname)s - %(message)s'
+    )
+    consumer = SentimentConsumer()
+    consumer.start()
+
+
 def main():
     """Chạy tất cả consumers"""
     logging.basicConfig(
@@ -80,6 +91,7 @@ def main():
         multiprocessing.Process(target=start_review_fetch_consumer, name='ReviewFetchConsumer'),
         multiprocessing.Process(target=start_review_consumer, name='ReviewConsumer'),
         multiprocessing.Process(target=start_order_consumer, name='OrderConsumer'),
+        multiprocessing.Process(target=start_sentiment_consumer, name='SentimentConsumer'),
     ]
     
     # Start all processes

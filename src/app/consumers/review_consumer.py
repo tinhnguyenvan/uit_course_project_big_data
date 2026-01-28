@@ -136,6 +136,26 @@ class ReviewConsumer(BaseConsumer):
             
             logger.info(f"Pushed order message for review {review_id} to topic {config.KAFKA_TOPIC_ORDERS}")
             
+            # Push tới topic phân tích cảm xúc
+            sentiment_message = {
+                'review_id': review_id,
+                'product_id': product_id,
+                'comment': comment,
+                'rating': data.get('rating', 0),
+                'created_at': created_at.isoformat()
+            }
+            
+            self.order_producer.produce(
+                config.KAFKA_TOPIC_SENTIMENT_ANALYSIS,
+                key=str(review_id).encode('utf-8'),
+                value=json.dumps(sentiment_message).encode('utf-8'),
+                callback=lambda err, msg: logger.error(f"Sentiment message delivery failed: {err}") if err 
+                         else logger.debug(f"Sentiment message for review {review_id} delivered")
+            )
+            self.order_producer.flush()
+            
+            logger.info(f"Pushed sentiment message for review {review_id} to topic {config.KAFKA_TOPIC_SENTIMENT_ANALYSIS}")
+            
             return True
             
         except SQLAlchemyError as e:

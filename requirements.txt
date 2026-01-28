@@ -28,8 +28,12 @@ python-dateutil==2.8.2
 textblob==0.17.1
 vaderSentiment==3.3.2
 # underthesea==6.7.0  # Commented out - requires Rust compiler
-# transformers==4.35.2  # Uncomment for PhoBERT
-# torch==2.1.1  # Uncomment for PhoBERT
+
+# PhoBERT - Vietnamese BERT for sentiment analysis
+transformers==4.35.2
+torch==2.1.1
+sentencepiece==0.1.99
+protobuf==4.25.1
 
 # CLI Tools
 click==8.1.7
