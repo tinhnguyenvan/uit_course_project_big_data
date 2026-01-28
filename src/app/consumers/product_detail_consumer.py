@@ -1,5 +1,5 @@
 """
-Product Detail Consumer - fetches detailed product information from Tiki API
+Product Detail Consumer - lấy thông tin chi tiết sản phẩm từ Tiki API
 """
 import logging
 import requests
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class ProductDetailConsumer(BaseConsumer):
-    """Consumer for product detail messages - fetches full product info from Tiki API"""
+    """Consumer xử lý message chi tiết sản phẩm - lấy thông tin đầy đủ từ Tiki API"""
     
     def __init__(self):
         super().__init__(
@@ -35,7 +35,7 @@ class ProductDetailConsumer(BaseConsumer):
         self._init_review_fetch_producer()
     
     def _init_review_fetch_producer(self):
-        """Initialize Kafka producer for review fetch topic"""
+        """Khởi tạo Kafka producer cho topic review fetch"""
         try:
             producer_config = {
                 'bootstrap.servers': config.KAFKA_BOOTSTRAP_SERVERS,
@@ -50,13 +50,13 @@ class ProductDetailConsumer(BaseConsumer):
     
     def process_detail(self, data: dict) -> bool:
         """
-        Process product detail message - fetch from API and update database
+        Xử lý message chi tiết sản phẩm - lấy từ API và cập nhật database
         
         Args:
-            data: Message containing product_id and spid
+            data: Message chứa product_id và spid
             
         Returns:
-            True if successful, False otherwise
+            True nếu thành công, False nếu thất bại
         """
         product_id = data.get('product_id')
         spid = data.get('spid', product_id)
@@ -66,17 +66,17 @@ class ProductDetailConsumer(BaseConsumer):
             return False
         
         try:
-            # Fetch product detail from Tiki API
+            # Lấy chi tiết sản phẩm từ Tiki API
             detail_data = self._fetch_product_detail(product_id, spid)
             
             if not detail_data:
                 logger.warning(f"No detail data fetched for product {product_id}")
                 return False
             
-            # Update database with detail information
+            # Cập nhật database với thông tin chi tiết
             success = self._update_product_detail(detail_data)
             
-            # If successful, push to review fetch topic
+            # Nếu thành công, push tới topic review fetch
             if success:
                 seller_id = detail_data.get('current_seller', {}).get('id')
                 self._push_to_review_fetch(product_id, spid, seller_id)
@@ -89,14 +89,14 @@ class ProductDetailConsumer(BaseConsumer):
     
     def _fetch_product_detail(self, product_id: int, spid: int) -> dict:
         """
-        Fetch product detail from Tiki API
+        Lấy chi tiết sản phẩm từ Tiki API
         
         Args:
-            product_id: Product ID
-            spid: Seller product ID
+            product_id: ID sản phẩm
+            spid: ID sản phẩm của seller
             
         Returns:
-            Product detail data or None
+            Dữ liệu chi tiết sản phẩm hoặc None
         """
         url = f"https://tiki.vn/api/v2/products/{product_id}"
         params = {

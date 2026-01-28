@@ -1,5 +1,5 @@
 """
-Order consumer - processes order messages from Kafka and creates orders in PostgreSQL
+Order consumer - xử lý các message đơn hàng từ Kafka và tạo đơn hàng trong PostgreSQL
 """
 import logging
 import json
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class OrderConsumer(BaseConsumer):
-    """Consumer for order messages from reviews"""
+    """Consumer xử lý message đơn hàng từ các đánh giá"""
     
     def __init__(self):
         super().__init__(
@@ -27,11 +27,11 @@ class OrderConsumer(BaseConsumer):
     
     def _ensure_customer(self, customer_id: int, customer_name: str):
         """
-        Ensure customer exists, create if not found
+        Đảm bảo khách hàng tồn tại, tạo mới nếu chưa có
         
         Args:
-            customer_id: Tiki user ID
-            customer_name: Customer name from review
+            customer_id: ID người dùng Tiki
+            customer_name: Tên khách hàng từ đánh giá
         """
         customer = self.db.query(Customer).filter_by(customer_id=customer_id).first()
         
@@ -44,7 +44,7 @@ class OrderConsumer(BaseConsumer):
             self.db.flush()
             logger.info(f"Created new customer {customer_id}: {customer_name}")
         else:
-            # Update name if changed
+            # Cập nhật tên nếu thay đổi
             if customer.customer_name != customer_name:
                 customer.customer_name = customer_name
                 self.db.flush()
@@ -54,13 +54,13 @@ class OrderConsumer(BaseConsumer):
     
     def _get_product_price(self, product_id: int) -> Decimal:
         """
-        Get latest product price from product_prices table
+        Lấy giá sản phẩm mới nhất từ bảng product_prices
         
         Args:
-            product_id: Product ID
+            product_id: ID sản phẩm
             
         Returns:
-            Latest price or None
+            Giá mới nhất hoặc None
         """
         latest_price = self.db.query(ProductPrice).filter_by(
             product_id=product_id
@@ -73,13 +73,13 @@ class OrderConsumer(BaseConsumer):
     
     def process_order(self, data: dict) -> bool:
         """
-        Process order message and create order with order lines
+        Xử lý message đơn hàng và tạo đơn hàng với các chi tiết
         
         Args:
-            data: Order data from Kafka (from ReviewConsumer)
+            data: Dữ liệu đơn hàng từ Kafka (từ ReviewConsumer)
             
         Returns:
-            True if successful, False otherwise
+            True nếu thành công, False nếu thất bại
         """
         self.db = SessionLocal()
         
@@ -93,7 +93,7 @@ class OrderConsumer(BaseConsumer):
                 logger.error(f"Missing required fields in order message: {data}")
                 return False
             
-            # Check if order already exists for this review (prevent duplicates)
+            # Kiểm tra xem đơn hàng đã tồn tại cho review này chưa (tránh trùng lặp)
             existing_order = self.db.query(Order).filter_by(
                 review_id=review_id
             ).first()
@@ -102,16 +102,16 @@ class OrderConsumer(BaseConsumer):
                 logger.debug(f"Order for review {review_id} already exists, skipping")
                 return True
             
-            # Verify product exists
+            # Xác minh sản phẩm tồn tại
             product = self.db.query(Product).filter_by(product_id=product_id).first()
             if not product:
                 logger.warning(f"Product {product_id} not found, skipping order for review {review_id}")
                 return False
             
-            # Ensure customer exists
+            # Đảm bảo khách hàng tồn tại
             customer = self._ensure_customer(customer_id, customer_name)
             
-            # Parse order date
+            # Parse ngày đặt hàng
             order_date = data.get('order_date')
             if isinstance(order_date, str):
                 try:
@@ -121,26 +121,26 @@ class OrderConsumer(BaseConsumer):
             else:
                 order_date = datetime.utcnow()
             
-            # Get product price
+            # Lấy giá sản phẩm
             unit_price = self._get_product_price(product_id)
             
-            # Calculate total (assuming quantity = 1 for now)
+            # Tính tổng tiền (giả sử số lượng = 1)
             quantity = 1
             total_amount = unit_price * quantity if unit_price else None
             
-            # Create order
+            # Tạo đơn hàng
             order = Order(
                 customer_id=customer_id,
                 review_id=review_id,
                 order_date=order_date,
                 total_amount=total_amount,
-                status='completed'  # Reviews mean product was delivered
+                status='completed'  # Có review nghĩa là sản phẩm đã được giao
             )
             
             self.db.add(order)
-            self.db.flush()  # Get order_id
+            self.db.flush()  # Lấy order_id
             
-            # Create order line
+            # Tạo chi tiết đơn hàng
             order_line = OrderLine(
                 order_id=order.order_id,
                 product_id=product_id,
@@ -161,7 +161,7 @@ class OrderConsumer(BaseConsumer):
         except IntegrityError as e:
             logger.warning(f"Order for review {review_id} already exists (IntegrityError), skipping")
             self.db.rollback()
-            return True  # Consider this success as order exists
+            return True  # Coi như thành công vì đơn hàng đã tồn tại
             
         except SQLAlchemyError as e:
             logger.error(f"Database error processing order: {e}")
@@ -178,7 +178,7 @@ class OrderConsumer(BaseConsumer):
                 self.db.close()
     
     def start(self):
-        """Start consuming order messages"""
+        """Bắt đầu consumer các message đơn hàng"""
         logger.info("Starting order consumer...")
         self.consume(self.process_order)
 
@@ -187,7 +187,7 @@ class OrderConsumer(BaseConsumer):
 if __name__ == '__main__':
     import sys
     
-    # Setup logging
+    # Thiết lập logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'

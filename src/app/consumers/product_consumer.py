@@ -1,5 +1,5 @@
 """
-Product consumer - processes products from Kafka and saves to PostgreSQL
+Product consumer - xử lý các sản phẩm từ Kafka và lưu vào PostgreSQL
 """
 import logging
 import json
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class ProductConsumer(BaseConsumer):
-    """Consumer for product messages"""
+    """Consumer xử lý các message sản phẩm"""
     
     def __init__(self):
         super().__init__(
@@ -28,7 +28,7 @@ class ProductConsumer(BaseConsumer):
         self._init_detail_producer()
     
     def _init_detail_producer(self):
-        """Initialize Kafka producer for product detail topic"""
+        """Khởi tạo Kafka producer cho topic chi tiết sản phẩm"""
         try:
             producer_config = {
                 'bootstrap.servers': config.KAFKA_BOOTSTRAP_SERVERS,
@@ -43,32 +43,32 @@ class ProductConsumer(BaseConsumer):
     
     def process_product(self, data: dict) -> bool:
         """
-        Process product message and save to database
+        Xử lý message sản phẩm và lưu vào database
         
         Args:
-            data: Product data from Kafka
+            data: Dữ liệu sản phẩm từ Kafka
             
         Returns:
-            True if successful, False otherwise
+            True nếu thành công, False nếu thất bại
         """
         self.db = SessionLocal()
         
         try:
-            # Save shop if present
+            # Lưu shop nếu có
             if data.get('shop_id'):
                 self._upsert_shop(data)
             
-            # Save category if present
+            # Lưu category nếu có
             if data.get('category_id'):
                 self._ensure_category(data.get('category_id'))
             
-            # Save/update product
+            # Lưu/cập nhật sản phẩm
             product = self.db.query(Product).filter_by(
                 product_id=data['product_id']
             ).first()
             
             if product:
-                # Update existing product
+                # Cập nhật sản phẩm đã tồn tại
                 product.name = data.get('name', product.name)
                 product.url = data.get('url', product.url)
                 product.image_url = data.get('image_url', product.image_url)
@@ -81,7 +81,7 @@ class ProductConsumer(BaseConsumer):
                 
                 logger.debug(f"Updated product {data['product_id']}")
             else:
-                # Create new product
+                # Tạo sản phẩm mới
                 product = Product(
                     product_id=data['product_id'],
                     name=data['name'],
@@ -96,7 +96,7 @@ class ProductConsumer(BaseConsumer):
                 self.db.add(product)
                 logger.debug(f"Created new product {data['product_id']}")
             
-            # Save price history if price info is available
+            # Lưu lịch sử giá nếu có thông tin giá
             if data.get('price'):
                 price = ProductPrice(
                     product_id=data['product_id'],
@@ -112,7 +112,7 @@ class ProductConsumer(BaseConsumer):
             self.db.commit()
             logger.info(f"Successfully saved product {data['product_id']}: {data.get('name', '')[:50]}")
             
-            # Push to product detail topic for detailed crawling
+            # Push tới topic chi tiết sản phẩm để crawl chi tiết
             self._push_to_detail_topic(data['product_id'], data.get('spid'))
             
             return True
@@ -132,7 +132,7 @@ class ProductConsumer(BaseConsumer):
                 self.db.close()
     
     def _upsert_shop(self, data: dict):
-        """Create or update shop"""
+        """Tạo hoặc cập nhật shop"""
         shop_id = data.get('shop_id')
         if not shop_id:
             return
@@ -140,8 +140,8 @@ class ProductConsumer(BaseConsumer):
         shop = self.db.query(Shop).filter_by(shop_id=shop_id).first()
         
         if not shop:
-            # Create minimal shop record
-            # Full shop details would come from shop-specific crawler
+            # Tạo record shop tối thiểu
+            # Thông tin đầy đủ về shop sẽ đến từ crawler riêng cho shop
             shop = Shop(
                 shop_id=shop_id,
                 shop_name=f"Shop {shop_id}",  # Placeholder
@@ -151,11 +151,11 @@ class ProductConsumer(BaseConsumer):
             logger.debug(f"Created placeholder for shop {shop_id}")
     
     def _ensure_category(self, category_id: int):
-        """Ensure category exists"""
+        """Đảm bảo category tồn tại"""
         category = self.db.query(Category).filter_by(category_id=category_id).first()
         
         if not category:
-            # Create placeholder category
+            # Tạo placeholder category
             category = Category(
                 category_id=category_id,
                 category_name=f"Category {category_id}"
@@ -164,7 +164,7 @@ class ProductConsumer(BaseConsumer):
             logger.debug(f"Created placeholder for category {category_id}")
     
     def _push_to_detail_topic(self, product_id: int, spid: int = None):
-        """Push product_id to detail topic for detailed crawling"""
+        """Push product_id tới topic chi tiết để crawl chi tiết"""
         if not self.detail_producer:
             logger.warning("Detail producer not available, skipping detail push")
             return
@@ -172,20 +172,20 @@ class ProductConsumer(BaseConsumer):
         try:
             message = {
                 'product_id': product_id,
-                'spid': spid or product_id  # Use product_id as fallback if spid not available
+                'spid': spid or product_id  # Sử dụng product_id làm fallback nếu spid không có
             }
             
-            # Serialize message to JSON
+            # Serialize message sang JSON
             message_json = json.dumps(message).encode('utf-8')
             
-            # Send message
+            # Gửi message
             self.detail_producer.produce(
                 config.KAFKA_TOPIC_PRODUCT_DETAIL,
                 value=message_json,
                 callback=self._delivery_callback
             )
             
-            # Flush to ensure message is sent
+            # Flush để đảm bảo message được gửi
             self.detail_producer.flush()
             logger.debug(f"Pushed product {product_id} to detail topic")
             
@@ -193,19 +193,19 @@ class ProductConsumer(BaseConsumer):
             logger.error(f"Failed to push product {product_id} to detail topic: {e}")
     
     def _delivery_callback(self, err, msg):
-        """Callback for message delivery confirmation"""
+        """Callback xác nhận gửi message"""
         if err:
             logger.error(f"Message delivery failed: {err}")
         else:
             logger.debug(f"Message delivered to {msg.topic()}")
     
     def start(self):
-        """Start consuming product messages"""
+        """Bắt đầu consumer các message sản phẩm"""
         logger.info("Starting product consumer...")
         self.consume(self.process_product)
     
     def close(self):
-        """Close producer connections"""
+        """Đóng kết nối producer"""
         if self.detail_producer:
             self.detail_producer.flush()
         super().close()
@@ -215,7 +215,7 @@ class ProductConsumer(BaseConsumer):
 if __name__ == '__main__':
     import sys
     
-    # Setup logging
+    # Thiết lập logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'

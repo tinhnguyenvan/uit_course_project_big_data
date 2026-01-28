@@ -1,5 +1,5 @@
 """
-Review Fetch Consumer - fetches product reviews from Tiki API with pagination
+Review Fetch Consumer - lấy các đánh giá sản phẩm từ Tiki API với phân trang
 """
 import logging
 import requests
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class ReviewFetchConsumer(BaseConsumer):
-    """Consumer that fetches reviews from Tiki API and pushes to review detail topic"""
+    """Consumer lấy các đánh giá từ Tiki API và push tới topic review detail"""
     
     def __init__(self):
         super().__init__(
@@ -31,7 +31,7 @@ class ReviewFetchConsumer(BaseConsumer):
         self._init_review_detail_producer()
     
     def _init_review_detail_producer(self):
-        """Initialize Kafka producer for review detail topic"""
+        """Khởi tạo Kafka producer cho topic review detail"""
         try:
             producer_config = {
                 'bootstrap.servers': config.KAFKA_BOOTSTRAP_SERVERS,
@@ -46,13 +46,13 @@ class ReviewFetchConsumer(BaseConsumer):
     
     def process_review_fetch(self, data: dict) -> bool:
         """
-        Process review fetch message - fetch reviews from API and push to detail topic
+        Xử lý message review fetch - lấy đánh giá từ API và push tới topic detail
         
         Args:
-            data: Message containing product_id, spid, seller_id
+            data: Message chứa product_id, spid, seller_id
             
         Returns:
-            True if successful, False otherwise
+            True nếu thành công, False nếu thất bại
         """
         product_id = data.get('product_id')
         spid = data.get('spid')
@@ -65,23 +65,23 @@ class ReviewFetchConsumer(BaseConsumer):
         try:
             logger.info(f"Fetching reviews for product {product_id} (spid: {spid})")
             
-            # Fetch first page to get total pages
+            # Lấy trang đầu tiên để biết tổng số trang
             first_page_data = self._fetch_reviews_page(product_id, spid, seller_id, page=1)
             
             if not first_page_data:
                 logger.warning(f"No reviews data for product {product_id}")
                 return False
             
-            # Process first page reviews
+            # Xử lý các đánh giá trang đầu
             reviews_processed = self._process_reviews(first_page_data.get('data', []), product_id)
             
-            # Get pagination info
+            # Lấy thông tin phân trang
             paging = first_page_data.get('paging', {})
             total_pages = paging.get('last_page', 1)
             
             logger.info(f"Product {product_id}: {paging.get('total', 0)} reviews, {total_pages} pages")
             
-            # Fetch remaining pages
+            # Lấy các trang còn lại
             for page in range(2, total_pages + 1):
                 page_data = self._fetch_reviews_page(product_id, spid, seller_id, page)
                 

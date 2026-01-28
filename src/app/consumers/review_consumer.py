@@ -1,5 +1,5 @@
 """
-Review consumer - processes reviews from Kafka and saves to PostgreSQL
+Review consumer - xử lý các đánh giá từ Kafka và lưu vào PostgreSQL
 """
 import logging
 import json
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class ReviewConsumer(BaseConsumer):
-    """Consumer for review detail messages"""
+    """Consumer xử lý các message chi tiết đánh giá"""
     
     def __init__(self):
         super().__init__(
@@ -25,7 +25,7 @@ class ReviewConsumer(BaseConsumer):
         )
         self.db = None
         
-        # Kafka producer for order topic
+        # Kafka producer cho topic đơn hàng
         self.order_producer = Producer({
             'bootstrap.servers': config.KAFKA_BOOTSTRAP_SERVERS,
             'acks': 'all',
@@ -34,13 +34,13 @@ class ReviewConsumer(BaseConsumer):
     
     def process_review(self, data: dict) -> bool:
         """
-        Process review detail message and save to database
+        Xử lý message chi tiết đánh giá và lưu vào database
         
         Args:
-            data: Review detail data from Kafka (from Tiki review API)
+            data: Dữ liệu chi tiết đánh giá từ Kafka (từ Tiki review API)
             
         Returns:
-            True if successful, False otherwise
+            True nếu thành công, False nếu thất bại
         """
         self.db = SessionLocal()
         
@@ -52,14 +52,14 @@ class ReviewConsumer(BaseConsumer):
                 logger.error(f"Missing product_id or review id in message")
                 return False
             
-            # Verify product exists
+            # Xác minh sản phẩm tồn tại
             product = self.db.query(Product).filter_by(product_id=product_id).first()
             
             if not product:
                 logger.warning(f"Product {product_id} not found, skipping review {review_id}")
                 return False
             
-            # Check if review already exists
+            # Kiểm tra xem đánh giá đã tồn tại chưa
             existing_review = self.db.query(Review).filter_by(
                 review_id=review_id
             ).first()
@@ -68,7 +68,7 @@ class ReviewConsumer(BaseConsumer):
                 logger.debug(f"Review {review_id} already exists, skipping")
                 return True
             
-            # Parse created_at timestamp (unix timestamp from API)
+            # Parse timestamp created_at (unix timestamp từ API)
             created_at = data.get('created_at')
             if isinstance(created_at, (int, float)):
                 created_at = datetime.fromtimestamp(created_at)
@@ -80,21 +80,21 @@ class ReviewConsumer(BaseConsumer):
             else:
                 created_at = datetime.utcnow()
             
-            # Extract user info
+            # Trích xuất thông tin người dùng
             created_by = data.get('created_by', {})
             user_name = created_by.get('full_name') or created_by.get('name', 'Anonymous')
             
-            # Extract comment (content)
+            # Trích xuất comment (nội dung)
             comment = data.get('content', '') or data.get('title', '')
             
-            # Count images
+            # Đếm số lượng hình ảnh
             images = data.get('images', [])
             has_images = len(images) > 0
             
-            # Extract helpful count (thank_count in API)
+            # Trích xuất số lượt hữu ích (thank_count trong API)
             helpful_count = data.get('thank_count', 0)
             
-            # Create review
+            # Tạo đánh giá
             review = Review(
                 review_id=review_id,
                 product_id=product_id,
@@ -115,7 +115,7 @@ class ReviewConsumer(BaseConsumer):
                 f"rating: {data.get('rating')}"
             )
             
-            # Push to order topic for order creation
+            # Push tới topic đơn hàng để tạo đơn hàng
             order_message = {
                 'review_id': review_id,
                 'product_id': product_id,
@@ -153,7 +153,7 @@ class ReviewConsumer(BaseConsumer):
                 self.db.close()
     
     def start(self):
-        """Start consuming review messages"""
+        """Bắt đầu consumer các message đánh giá"""
         logger.info("Starting review consumer...")
         self.consume(self.process_review)
 
@@ -162,7 +162,7 @@ class ReviewConsumer(BaseConsumer):
 if __name__ == '__main__':
     import sys
     
-    # Setup logging
+    # Thiết lập logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'

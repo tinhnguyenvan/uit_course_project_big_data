@@ -1,5 +1,5 @@
 """
-Run all consumers in parallel
+Chạy tất cả consumers song song
 """
 import multiprocessing
 import logging
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def start_product_consumer():
-    """Start product consumer in separate process"""
+    """Khởi động product consumer trong process riêng"""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - [PRODUCT] - %(levelname)s - %(message)s'
@@ -25,7 +25,7 @@ def start_product_consumer():
 
 
 def start_product_detail_consumer():
-    """Start product detail consumer in separate process"""
+    """Khởi động product detail consumer trong process riêng"""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - [PRODUCT-DETAIL] - %(levelname)s - %(message)s'
@@ -35,7 +35,7 @@ def start_product_detail_consumer():
 
 
 def start_review_fetch_consumer():
-    """Start review fetch consumer in separate process"""
+    """Khởi động review fetch consumer trong process riêng"""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - [REVIEW-FETCH] - %(levelname)s - %(message)s'
@@ -45,7 +45,7 @@ def start_review_fetch_consumer():
 
 
 def start_review_consumer():
-    """Start review consumer in separate process"""
+    """Khởi động review consumer trong process riêng"""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - [REVIEW] - %(levelname)s - %(message)s'
@@ -55,7 +55,7 @@ def start_review_consumer():
 
 
 def start_order_consumer():
-    """Start order consumer in separate process"""
+    """Khởi động order consumer trong process riêng"""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - [ORDER] - %(levelname)s - %(message)s'
@@ -65,7 +65,7 @@ def start_order_consumer():
 
 
 def main():
-    """Run all consumers"""
+    """Chạy tất cả consumers"""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -73,7 +73,7 @@ def main():
     
     logger.info("Starting all Kafka consumers...")
     
-    # Create processes
+    # Tạo các process
     processes = [
         multiprocessing.Process(target=start_product_consumer, name='ProductConsumer'),
         multiprocessing.Process(target=start_product_detail_consumer, name='ProductDetailConsumer'),

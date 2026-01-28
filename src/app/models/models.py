@@ -1,5 +1,5 @@
 """
-SQLAlchemy ORM Models
+SQLAlchemy ORM Models - Các mô hình dữ liệu
 """
 from sqlalchemy import (
     Column, Integer, BigInteger, String, Text, Float, 
@@ -12,7 +12,7 @@ from .database import Base
 
 
 class Category(Base):
-    """Product categories"""
+    """Danh mục sản phẩm"""
     __tablename__ = "categories"
     
     category_id = Column(Integer, primary_key=True, autoincrement=True)
@@ -20,7 +20,7 @@ class Category(Base):
     parent_id = Column(Integer, ForeignKey("categories.category_id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    # Relationships
+    # Quan hệ
     products = relationship("Product", back_populates="category")
     parent = relationship("Category", remote_side=[category_id], backref="children")
     
@@ -29,7 +29,7 @@ class Category(Base):
 
 
 class Shop(Base):
-    """Shop/Seller information"""
+    """Thông tin shop/người bán"""
     __tablename__ = "shops"
     
     shop_id = Column(BigInteger, primary_key=True)
@@ -41,7 +41,7 @@ class Shop(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
-    # Relationships
+    # Quan hệ
     products = relationship("Product", back_populates="shop")
     
     def __repr__(self):
@@ -49,7 +49,7 @@ class Shop(Base):
 
 
 class Product(Base):
-    """Product information"""
+    """Thông tin sản phẩm"""
     __tablename__ = "products"
     
     product_id = Column(BigInteger, primary_key=True)
@@ -64,7 +64,7 @@ class Product(Base):
     first_seen = Column(DateTime(timezone=True), server_default=func.now())
     last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
-    # Detail fields from product detail API
+    # Các trường chi tiết từ product detail API
     review_count = Column(Integer, default=0)
     discount_rate = Column(Integer, default=0)
     short_description = Column(Text)
@@ -72,7 +72,7 @@ class Product(Base):
     specifications = Column(JSONB)
     configurable_options = Column(JSONB)
     
-    # Relationships
+    # Quan hệ
     shop = relationship("Shop", back_populates="products")
     category = relationship("Category", back_populates="products")
     reviews = relationship("Review", back_populates="product", cascade="all, delete-orphan")
@@ -83,7 +83,7 @@ class Product(Base):
 
 
 class ProductPrice(Base):
-    """Product price history (TimescaleDB hypertable)"""
+    """Lịch sử giá sản phẩm (TimescaleDB hypertable)"""
     __tablename__ = "product_prices"
     
     product_id = Column(BigInteger, ForeignKey("products.product_id"), primary_key=True)
@@ -93,7 +93,7 @@ class ProductPrice(Base):
     stock_available = Column(Integer)
     timestamp = Column(DateTime(timezone=True), primary_key=True, server_default=func.now())
     
-    # Relationships
+    # Quan hệ
     product = relationship("Product", back_populates="prices")
     
     def __repr__(self):
@@ -101,10 +101,10 @@ class ProductPrice(Base):
 
 
 class Review(Base):
-    """Customer reviews"""
+    """Đánh giá của khách hàng"""
     __tablename__ = "reviews"
     
-    review_id = Column(BigInteger, primary_key=True)  # Use Tiki review ID
+    review_id = Column(BigInteger, primary_key=True)  # Sử dụng Tiki review ID
     product_id = Column(BigInteger, ForeignKey("products.product_id"), nullable=False)
     user_name = Column(String(255))
     rating = Column(Integer, nullable=False)
@@ -118,7 +118,7 @@ class Review(Base):
         CheckConstraint('rating >= 1 AND rating <= 5', name='check_rating_range'),
     )
     
-    # Relationships
+    # Quan hệ
     product = relationship("Product", back_populates="reviews")
     sentiment = relationship("ReviewSentiment", back_populates="review", uselist=False, cascade="all, delete-orphan")
     
@@ -127,7 +127,7 @@ class Review(Base):
 
 
 class ReviewSentiment(Base):
-    """Sentiment analysis results for reviews"""
+    """Kết quả phân tích cảm xúc đánh giá"""
     __tablename__ = "review_sentiment"
     
     sentiment_id = Column(BigInteger, primary_key=True, autoincrement=True)
@@ -143,7 +143,7 @@ class ReviewSentiment(Base):
         ),
     )
     
-    # Relationships
+    # Quan hệ
     review = relationship("Review", back_populates="sentiment")
     
     def __repr__(self):
@@ -151,15 +151,15 @@ class ReviewSentiment(Base):
 
 
 class Customer(Base):
-    """Customer information from reviews"""
+    """Thông tin khách hàng từ đánh giá"""
     __tablename__ = "customers"
     
-    customer_id = Column(BigInteger, primary_key=True)  # Use Tiki user ID
+    customer_id = Column(BigInteger, primary_key=True)  # Sử dụng Tiki user ID
     customer_name = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     
-    # Relationships
+    # Quan hệ
     orders = relationship("Order", back_populates="customer")
     
     def __repr__(self):
@@ -167,18 +167,18 @@ class Customer(Base):
 
 
 class Order(Base):
-    """Orders created from reviews (1 review = 1 order)"""
+    """Đơn hàng được tạo từ đánh giá (1 đánh giá = 1 đơn hàng)"""
     __tablename__ = "orders"
     
     order_id = Column(BigInteger, primary_key=True, autoincrement=True)
     customer_id = Column(BigInteger, ForeignKey("customers.customer_id"), nullable=False)
-    review_id = Column(BigInteger, ForeignKey("reviews.review_id"), unique=True, nullable=False)  # Prevent duplicate orders
+    review_id = Column(BigInteger, ForeignKey("reviews.review_id"), unique=True, nullable=False)  # Ngăn chặn đơn hàng trùng lặp
     order_date = Column(DateTime(timezone=True), nullable=False)
     total_amount = Column(DECIMAL(12, 2))
     status = Column(String(50), default='completed')
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    # Relationships
+    # Quan hệ
     customer = relationship("Customer", back_populates="orders")
     review = relationship("Review")
     order_lines = relationship("OrderLine", back_populates="order", cascade="all, delete-orphan")
@@ -188,7 +188,7 @@ class Order(Base):
 
 
 class OrderLine(Base):
-    """Order line items"""
+    """Các mục trong đơn hàng"""
     __tablename__ = "order_lines"
     
     order_line_id = Column(BigInteger, primary_key=True, autoincrement=True)
@@ -198,7 +198,7 @@ class OrderLine(Base):
     unit_price = Column(DECIMAL(12, 2))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    # Relationships
+    # Quan hệ
     order = relationship("Order", back_populates="order_lines")
     product = relationship("Product")
     
@@ -207,7 +207,7 @@ class OrderLine(Base):
 
 
 class CrawlLog(Base):
-    """Crawler execution logs for monitoring"""
+    """Nhật ký thực thi crawler để giám sát"""
     __tablename__ = "crawl_logs"
     
     log_id = Column(BigInteger, primary_key=True, autoincrement=True)
