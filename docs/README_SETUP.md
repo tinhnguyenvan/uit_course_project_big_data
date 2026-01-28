@@ -190,7 +190,7 @@ lsof -i :3000  # Metabase
 docker-compose up -d  # thay vì docker compose up -d
 ```
 
-### Lỗi: PostgreSQL init.sql không chạy
+### Lỗi: PostgreSQL không chạy
 
 ```bash
 # Remove volume và restart

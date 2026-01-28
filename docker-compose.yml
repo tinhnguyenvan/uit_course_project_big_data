@@ -107,7 +107,6 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - uit-network
     healthcheck:
@@ -140,55 +139,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
-  # Python Application - Scrapy Crawlers & Kafka Consumers
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: uit-bd-app
-    depends_on:
-      kafka:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    environment:
-      # Database
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: uit_analytics
-      POSTGRES_USER: uit_user
-      POSTGRES_PASSWORD: uit_password
-      
-      # Kafka
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      KAFKA_TOPIC_PRODUCTS: uit-products
-      KAFKA_TOPIC_REVIEWS: uit-reviews
-      KAFKA_TOPIC_PRICES: uit-prices
-      KAFKA_TOPIC_SHOPS: uit-shops
-      
-      # Scrapy
-      SCRAPY_CONCURRENT_REQUESTS: 16
-      SCRAPY_DOWNLOAD_DELAY: 1
-      
-      # Service to run
-      SERVICE: ${SERVICE:-check}
-      
-      # Crawler options
-      CATEGORY_ID: ${CATEGORY_ID:-1789}
-      MAX_PAGES: ${MAX_PAGES:-10}
-      PRODUCT_IDS: ${PRODUCT_IDS:-}
-      
-      # Logging
-      LOG_LEVEL: INFO
-      PYTHONUNBUFFERED: 1
-    volumes:
-      - ./src:/app/src
-      - ./logs:/app/logs
-      - ./data:/app/data
-    networks:
-      - uit-network
-    entrypoint: ["/app/docker/entrypoint.sh"]
 
   # Cron Service - Auto Crawler
   cron:

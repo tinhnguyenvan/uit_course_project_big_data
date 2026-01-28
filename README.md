@@ -288,7 +288,6 @@ project/
 │   ├── docker-compose.yml
 │   ├── kafka/
 │   ├── postgres/
-│   │   └── init.sql
 │   └── metabase/
 ├── src/
 │   ├── crawlers/
