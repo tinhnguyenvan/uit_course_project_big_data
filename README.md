@@ -450,7 +450,69 @@ python src/consumers/start_all.py
 - **Business Intelligence**: Dashboard design, data visualization
 - **ETL Pipeline**: Data cleaning, transformation, loading
 
-## 📚 Tài liệu tham khảo
+## � Crawl Categories Management (NEW!)
+
+Hệ thống quản lý crawl categories tự động từ database với các tính năng:
+
+### ✨ Tính năng
+- ✅ **Database-driven**: Quản lý categories cần crawl từ PostgreSQL
+- ✅ **Priority-based**: Crawl theo độ ưu tiên (high priority trước)
+- ✅ **Auto-resume**: Tự động tiếp tục từ trang cuối đã crawl
+- ✅ **Progress tracking**: Theo dõi tiến độ crawl (pages, products)
+- ✅ **Cron automation**: Tự động crawl mỗi 3 phút
+- ✅ **CLI management**: Quản lý categories qua command line
+
+### 🚀 Quick Start
+
+```bash
+# 1. Xem danh sách categories
+python src/manage_crawl_categories.py list
+
+# 2. Xem thống kê
+python src/manage_crawl_categories.py stats
+
+# 3. Crawl manual (test)
+docker compose run --rm app python src/manage.py crawl-from-db --limit 3
+
+# 4. Start cron tự động (recommended)
+docker compose up -d cron
+docker compose logs -f cron
+```
+
+### 📊 Sample Categories (11 categories)
+
+| Category | Priority | Max Pages | Status |
+|----------|----------|-----------|--------|
+| Điện Thoại - Máy Tính Bảng | 10 | 50 | pending |
+| Điện Thoại Smartphone | 9 | 50 | pending |
+| Laptop | 9 | 50 | pending |
+| Nhà Sách Tiki | 8 | 100 | pending |
+| Văn học | 7 | 80 | pending |
+
+### 📖 Tài liệu chi tiết
+
+- [📚 CRAWL_CATEGORIES.md](docs/CRAWL_CATEGORIES.md) - Hướng dẫn đầy đủ
+- [⚡ QUICK_START_CRAWL.md](docs/QUICK_START_CRAWL.md) - Quick start guide
+- [📝 INTEGRATION_SUMMARY.md](docs/INTEGRATION_SUMMARY.md) - Tổng kết tích hợp
+
+### 🔧 Quản lý Categories
+
+```bash
+# Thêm category mới
+python src/manage_crawl_categories.py add 1234 "Tên" "URL" --priority 8
+
+# Cập nhật priority
+python src/manage_crawl_categories.py update 1789 --priority 10
+
+# Kích hoạt/Vô hiệu hóa
+python src/manage_crawl_categories.py activate 1789
+python src/manage_crawl_categories.py deactivate 1789
+
+# Reset để crawl lại
+python src/manage_crawl_categories.py reset 1789
+```
+
+## �📚 Tài liệu tham khảo
 
 - [Apache Kafka Documentation](https://kafka.apache.org/documentation/)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)

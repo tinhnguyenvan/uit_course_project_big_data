@@ -4,7 +4,7 @@ SQLAlchemy database models
 from .database import Base, engine, SessionLocal, get_db
 from .models import (
     Product, Shop, Category, Review, ReviewSentiment, ProductPrice, CrawlLog,
-    Customer, Order, OrderLine
+    Customer, Order, OrderLine, CrawlCategory
 )
 
 __all__ = [
@@ -21,5 +21,6 @@ __all__ = [
     'CrawlLog',
     'Customer',
     'Order',
-    'OrderLine'
+    'OrderLine',
+    'CrawlCategory'
 ]

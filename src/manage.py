@@ -199,6 +199,98 @@ def start_consumers(consumer):
 
 
 @cli.command()
+@click.option('--limit', default=None, help='Limit số categories cần crawl')
+@click.option('--status', default=None, help='Chỉ crawl categories với status này')
+def crawl_from_db(limit, status):
+    """Crawl tự động từ bảng crawl_categories"""
+    from app.models import SessionLocal, CrawlCategory
+    from datetime import datetime
+    
+    click.echo("🕷️  Crawl từ database crawl_categories...")
+    
+    db = SessionLocal()
+    
+    try:
+        # Query categories cần crawl
+        query = db.query(CrawlCategory).filter_by(is_active=True)
+        
+        if status:
+            query = query.filter_by(crawl_status=status)
+        else:
+            # Mặc định lấy pending hoặc failed
+            query = query.filter(CrawlCategory.crawl_status.in_(['pending', 'failed']))
+        
+        query = query.order_by(CrawlCategory.priority.desc())
+        
+        if limit:
+            query = query.limit(limit)
+        
+        categories = query.all()
+        
+        if not categories:
+            click.secho("ℹ️  Không có category nào cần crawl", fg='yellow')
+            return
+        
+        click.echo(f"\n📋 Tìm thấy {len(categories)} categories cần crawl:\n")
+        
+        for cat in categories:
+            click.echo(f"  • {cat.category_name} (ID: {cat.category_id}, Priority: {cat.priority})")
+        
+        click.echo()
+        
+        # Crawl từng category
+        for idx, cat in enumerate(categories, 1):
+            click.echo(f"\n[{idx}/{len(categories)}] Crawl: {cat.category_name}")
+            click.echo(f"  Category ID: {cat.category_id}")
+            click.echo(f"  Max pages: {cat.max_pages}")
+            
+            # Cập nhật status
+            cat.crawl_status = 'in_progress'
+            db.commit()
+            
+            try:
+                # Import và chạy crawler
+                from scrapy.crawler import CrawlerProcess
+                from scrapy.utils.project import get_project_settings
+                from app.crawlers.spiders.tiki_listing import TikiListingSpider
+                
+                settings = get_project_settings()
+                settings.setmodule('app.crawlers.settings')
+                
+                process = CrawlerProcess(settings)
+                
+                kwargs = {
+                    'category_id': str(cat.category_id),
+                    'resume': True
+                }
+                
+                if cat.max_pages:
+                    kwargs['max_pages'] = str(cat.max_pages)
+                
+                process.crawl(TikiListingSpider, **kwargs)
+                process.start()
+                
+                # Cập nhật thành công
+                cat.crawl_status = 'completed'
+                cat.last_crawled_at = datetime.now()
+                db.commit()
+                
+                click.secho(f"  ✓ Hoàn thành", fg='green')
+                
+            except Exception as e:
+                click.secho(f"  ✗ Lỗi: {str(e)}", fg='red')
+                cat.crawl_status = 'failed'
+                cat.notes = f"Error: {str(e)}"
+                db.commit()
+        
+        click.echo("\n" + "=" * 50)
+        click.secho("✓ Hoàn thành crawl từ database", fg='green')
+        
+    finally:
+        db.close()
+
+
+@cli.command()
 def stats():
     """Show database statistics"""
     click.echo("📊 Database Statistics\n")
@@ -220,3 +312,4 @@ def stats():
 
 if __name__ == '__main__':
     cli()
+

@@ -11,6 +11,42 @@ from sqlalchemy.sql import func
 from .database import Base
 
 
+class CrawlCategory(Base):
+    """Cấu hình và theo dõi crawl các category"""
+    __tablename__ = "crawl_categories"
+    
+    category_id = Column(Integer, primary_key=True)  # Tiki category ID
+    category_name = Column(String(255), nullable=False)
+    category_url = Column(Text, nullable=False)
+    parent_category_id = Column(Integer, nullable=True)
+    
+    # Cấu hình crawl
+    is_active = Column(Boolean, default=True)
+    priority = Column(Integer, default=0)  # Cao hơn = ưu tiên hơn
+    max_pages = Column(Integer, default=10)  # Số trang tối đa cần crawl
+    
+    # Theo dõi tiến trình
+    crawl_status = Column(String(20), default='pending')  # pending, in_progress, completed, failed, paused
+    last_crawled_at = Column(DateTime(timezone=True))
+    last_crawled_page = Column(Integer, default=0)  # Trang cuối đã crawl (để resume)
+    total_products_crawled = Column(Integer, default=0)
+    
+    # Metadata
+    notes = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    __table_args__ = (
+        CheckConstraint(
+            "crawl_status IN ('pending', 'in_progress', 'completed', 'failed', 'paused')", 
+            name='check_crawl_status'
+        ),
+    )
+    
+    def __repr__(self):
+        return f"<CrawlCategory(id={self.category_id}, name='{self.category_name}', status='{self.crawl_status}')>"
+
+
 class Category(Base):
     """Danh mục sản phẩm"""
     __tablename__ = "categories"

@@ -1,8 +1,8 @@
-# Crontab for Tiki Crawler - Chạy mỗi 2 phút
+# Crontab for Tiki Crawler - Tự động crawl từ database
 # Format: minute hour day month weekday command
 
-# Run crawler every 2 minutes (crawl 10 pages each time with resume)
-*/2 * * * * cd /app/src && /usr/local/bin/scrapy crawl tiki_listing -a category_id=870 -a max_pages=10 -a resume=true >> /app/logs/cron-crawler.log 2>&1
+# Crawl categories từ database mỗi 3 phút (auto-select theo priority)
+*/3 * * * * cd /app && /usr/local/bin/python src/crawl_from_categories.py >> /app/logs/cron-crawler.log 2>&1
 
 # Heartbeat log every 5 minutes
 */5 * * * * echo "[$(date)] Cron is alive" >> /app/logs/cron-heartbeat.log 2>&1

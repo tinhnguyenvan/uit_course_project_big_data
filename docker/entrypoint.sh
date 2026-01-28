@@ -56,6 +56,21 @@ case "$SERVICE" in
     fi
     ;;
   
+  "crawl-from-db")
+    echo "🕷️ Starting crawler from database (crawl_categories table)..."
+    LIMIT=${LIMIT:-}
+    STATUS=${STATUS:-}
+    if [ -n "$LIMIT" ] && [ -n "$STATUS" ]; then
+      python src/manage.py crawl-from-db --limit $LIMIT --status $STATUS
+    elif [ -n "$LIMIT" ]; then
+      python src/manage.py crawl-from-db --limit $LIMIT
+    elif [ -n "$STATUS" ]; then
+      python src/manage.py crawl-from-db --status $STATUS
+    else
+      python src/manage.py crawl-from-db
+    fi
+    ;;
+  
   "crawl-reviews")
     echo "🕷️ Starting review crawler..."
     if [ -z "$PRODUCT_IDS" ]; then
