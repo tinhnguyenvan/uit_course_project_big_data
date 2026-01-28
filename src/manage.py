@@ -74,9 +74,13 @@ def create_kafka_topics():
     
     topics = {
         config.KAFKA_TOPIC_PRODUCTS: 3,
+        config.KAFKA_TOPIC_PRODUCT_DETAIL: 3,
+        config.KAFKA_TOPIC_REVIEW_FETCH: 3,
+        config.KAFKA_TOPIC_REVIEW_DETAIL: 3,
         config.KAFKA_TOPIC_REVIEWS: 3,
         config.KAFKA_TOPIC_PRICES: 3,
         config.KAFKA_TOPIC_SHOPS: 1,
+        config.KAFKA_TOPIC_ORDERS: 3,  # Topic cho đơn hàng
     }
     
     try:

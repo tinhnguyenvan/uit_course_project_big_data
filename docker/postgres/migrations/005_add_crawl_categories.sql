@@ -49,20 +49,9 @@ CREATE TRIGGER trigger_update_crawl_category_timestamp
 
 -- Insert dữ liệu mẫu các category phổ biến trên Tiki
 INSERT INTO crawl_categories (category_id, category_name, category_url, parent_category_id, is_active, priority, max_pages, notes) VALUES
-    (8322, 'Điện Thoại - Máy Tính Bảng', 'https://tiki.vn/dien-thoai-may-tinh-bang/c8322', NULL, true, 10, 50, 'Category chính - Điện thoại và máy tính bảng'),
-    (1789, 'Điện Thoại Smartphone', 'https://tiki.vn/dien-thoai-smartphone/c1789', 8322, true, 9, 50, 'Điện thoại thông minh - sản phẩm hot'),
-    (1795, 'Máy Tính Bảng', 'https://tiki.vn/may-tinh-bang/c1795', 8322, true, 8, 30, 'Máy tính bảng các loại'),
-    
-    (1846, 'Laptop - Máy Vi Tính - Linh kiện', 'https://tiki.vn/laptop-may-vi-tinh-linh-kien/c1846', NULL, true, 9, 50, 'Category chính - Máy tính và linh kiện'),
-    (1801, 'Laptop', 'https://tiki.vn/laptop/c1801', 1846, true, 9, 50, 'Laptop các hãng'),
-    
     (8594, 'Nhà Sách Tiki', 'https://tiki.vn/nha-sach-tiki/c8594', NULL, true, 8, 100, 'Category chính - Sách'),
     (871, 'Văn học', 'https://tiki.vn/van-hoc/c871', 8594, true, 7, 80, 'Sách văn học'),
     (316, 'Sách kinh tế', 'https://tiki.vn/sach-kinh-te/c316', 8594, true, 7, 80, 'Sách về kinh tế, kinh doanh'),
-    
-    (1882, 'Đồ chơi - Mẹ & Bé', 'https://tiki.vn/do-choi-me-be/c1882', NULL, true, 6, 40, 'Category chính - Đồ chơi và mẹ bé'),
-    (2549, 'Thời trang nữ', 'https://tiki.vn/thoi-trang-nu/c2549', NULL, true, 5, 40, 'Thời trang cho nữ'),
-    (1686, 'Thời trang nam', 'https://tiki.vn/thoi-trang-nam/c1686', NULL, true, 5, 40, 'Thời trang cho nam')
 ON CONFLICT (category_id) DO NOTHING;
 
 -- Comments để document
