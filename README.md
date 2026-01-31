@@ -68,7 +68,7 @@ Hệ thống thu thập và phân tích dữ liệu sản phẩm và bình luậ
        ▼                    ▼
 ┌─────────────┐      ┌──────────────────┐
 │  Metabase   │      │  Sentiment ML    │
-│ (Dashboards)│      │  (TextBlob/BERT) │
+│ (Dashboards)│      │  (PhoBERT) │
 └─────────────┘      └──────────────────┘
 ```
 
